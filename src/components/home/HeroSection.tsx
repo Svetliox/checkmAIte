@@ -19,7 +19,7 @@ export function HeroSection() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-primary opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-primary"></span>
               </span>
-              Powered by Stockfish AI
+              Powered by Stockfish
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
@@ -43,9 +43,6 @@ export function HeroSection() {
                   <ArrowRightIcon className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                Watch Demo
-              </Button>
             </div>
 
             {/* Stats */}

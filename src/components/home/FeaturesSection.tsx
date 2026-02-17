@@ -74,23 +74,7 @@ export function FeaturesSection() {
           ))}
         </div>
 
-        {/* Additional features list */}
-        <div className="mt-16 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { label: 'Opening Explorer', icon: '📚' },
-            { label: 'Endgame Tablebase', icon: '♔' },
-            { label: 'PGN Import/Export', icon: '📄' },
-            { label: 'Cloud Sync', icon: '☁️' },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className="flex items-center gap-3 p-4 rounded-lg bg-surface-2 border border-border-default"
-            >
-              <span className="text-2xl">{item.icon}</span>
-              <span className="font-medium">{item.label}</span>
-            </div>
-          ))}
-        </div>
+        {/* ...existing code... */}
       </Container>
     </section>
   );

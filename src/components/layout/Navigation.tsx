@@ -7,7 +7,6 @@ import { Button } from '@/components/ui';
 
 const navItems = [
   { href: '/', label: 'Home' },
-  { href: '/analysis', label: 'Analysis' },
 ];
 
 export function Navigation() {
@@ -35,9 +34,11 @@ export function Navigation() {
       </ul>
 
       {/* CTA Button */}
-      <Button size="sm" className="hidden sm:inline-flex">
-        Start Analyzing
-      </Button>
+      <Link href="/analysis">
+        <Button size="sm" className="hidden sm:inline-flex">
+          Start Analyzing
+        </Button>
+      </Link>
 
       {/* Mobile Menu Button */}
       <button

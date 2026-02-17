@@ -7,16 +7,6 @@ const footerLinks = {
     { href: '/features', label: 'Features' },
     { href: '/pricing', label: 'Pricing' },
   ],
-  resources: [
-    { href: '/docs', label: 'Documentation' },
-    { href: '/blog', label: 'Blog' },
-    { href: '/changelog', label: 'Changelog' },
-  ],
-  company: [
-    { href: '/about', label: 'About' },
-    { href: '/contact', label: 'Contact' },
-    { href: '/privacy', label: 'Privacy Policy' },
-  ],
 };
 
 export function Footer() {
@@ -24,7 +14,7 @@ export function Footer() {
     <footer className="border-t border-border-default bg-surface-1">
       <Container>
         <div className="py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Brand */}
             <div className="md:col-span-1">
               <Link
@@ -59,38 +49,6 @@ export function Footer() {
                 ))}
               </ul>
             </div>
-
-            <div>
-              <h4 className="font-semibold text-foreground mb-4">Resources</h4>
-              <ul className="space-y-2">
-                {footerLinks.resources.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-foreground/60 hover:text-foreground transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-foreground mb-4">Company</h4>
-              <ul className="space-y-2">
-                {footerLinks.company.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-foreground/60 hover:text-foreground transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
           </div>
 
           {/* Bottom */}
@@ -100,22 +58,13 @@ export function Footer() {
             </p>
             <div className="flex items-center gap-4">
               <a
-                href="https://github.com"
+                href="https://github.com/Svetliox/checkmAIte"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-foreground/50 hover:text-foreground transition-colors"
                 aria-label="GitHub"
               >
                 <GitHubIcon className="h-5 w-5" />
-              </a>
-              <a
-                href="https://twitter.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-foreground/50 hover:text-foreground transition-colors"
-                aria-label="Twitter"
-              >
-                <TwitterIcon className="h-5 w-5" />
               </a>
             </div>
           </div>

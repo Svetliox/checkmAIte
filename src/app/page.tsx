@@ -1,6 +1,5 @@
 import { HeroSection } from '@/components/home/HeroSection';
 import { FeaturesSection } from '@/components/home/FeaturesSection';
-import { CTASection } from '@/components/home/CTASection';
 
 /**
  * Homepage - checkmAIte Chess Analysis
@@ -13,7 +12,6 @@ export default function HomePage() {
     <>
       <HeroSection />
       <FeaturesSection />
-      <CTASection />
     </>
   );
 }
