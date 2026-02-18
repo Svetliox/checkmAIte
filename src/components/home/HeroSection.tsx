@@ -128,7 +128,6 @@ function ChessBoardIllustration() {
   const board = [
     ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
     ['♟', '♟', '♟', '♟', '', '♟', '♟', '♟'],
-    ['', '', '', '', '', '', '', ''],
     ['', '', '', '', '♟', '', '', ''],
     ['', '', '', '', '♙', '', '', ''],
     ['', '', '♘', '', '', '', '', ''],
@@ -137,24 +136,21 @@ function ChessBoardIllustration() {
   ];
 
   return (
-    <div className="grid grid-cols-8 aspect-square rounded-lg overflow-hidden">
+    <div className="grid grid-cols-8 grid-rows-7 w-full h-full rounded-lg overflow-hidden">
       {board.flat().map((piece, index) => {
         const row = Math.floor(index / 8);
         const col = index % 8;
         const isLight = (row + col) % 2 === 0;
         const isHighlighted =
-          (row === 4 && col === 4) || // e4
-          (row === 5 && col === 2); // c3 (knight)
+          (row === 3 && col === 4) || // e4
+          (row === 4 && col === 2); // c3 (knight)
 
         return (
           <div
             key={index}
-            className={`
-              flex items-center justify-center text-2xl sm:text-3xl
-              ${isLight ? 'bg-chess-light' : 'bg-chess-dark'}
-              ${isHighlighted ? 'ring-2 ring-inset ring-accent-primary/50' : ''}
-              transition-colors
-            `}
+            className="flex items-center justify-center text-3xl md:text-4xl lg:text-5xl min-h-[48px] min-w-[48px] md:min-h-[56px] md:min-w-[56px] lg:min-h-[64px] lg:min-w-[64px] transition-colors"
+            style={{ backgroundColor: isLight ? '#f0d9b5' : '#b58863' }}
+            aria-hidden={!piece}
           >
             {piece}
           </div>

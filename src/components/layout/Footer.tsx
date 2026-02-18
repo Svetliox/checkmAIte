@@ -5,7 +5,7 @@ const footerLinks = {
   product: [
     { href: '/analysis', label: 'Analysis Board' },
     { href: '/features', label: 'Features' },
-    { href: '/pricing', label: 'Pricing' },
+    { href: '/pricing', label: 'Show my perfect 404 page!' },
   ],
 };
 

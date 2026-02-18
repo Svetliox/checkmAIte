@@ -55,23 +55,16 @@ export function AnalysisBoard() {
           <FlipIcon className="w-4 h-4 mr-2" />
           Flip Board
         </Button>
-        <Button variant="outline" size="sm">
-          <ImportIcon className="w-4 h-4 mr-2" />
-          Import PGN
-        </Button>
-        <Button variant="outline" size="sm">
-          <ShareIcon className="w-4 h-4 mr-2" />
-          Share
-        </Button>
+        {/* ...existing code... */}
       </div>
 
       {/* Move history (simple display) */}
       {moveHistory.length > 0 && (
         <div className="w-full max-w-md">
           <div className="text-sm text-foreground/60 mb-2">Move History</div>
-          <div className="p-3 rounded-lg bg-surface-2 font-mono text-sm">
+          <div className="p-3 rounded-lg bg-surface-2 font-mono text-sm overflow-x-auto whitespace-normal break-words" style={{ maxHeight: '120px' }}>
             {moveHistory.map((move, i) => (
-              <span key={i}>
+              <span key={i} className="inline-block max-w-[80px] truncate align-top">
                 {i % 2 === 0 && (
                   <span className="text-foreground/50 mr-1">
                     {Math.floor(i / 2) + 1}.
