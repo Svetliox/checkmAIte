@@ -66,9 +66,9 @@ function classifyFromCpLoss(cpLoss: number): MoveClassification {
 export function AnalysisProvider({ children }: { children: ReactNode }) {
   const stockfish = useStockfish({
     autoAnalyze: true,
-    depth: 20,
+    depth: 12, // Lower depth for faster response
     multiPv: 3,
-    debounceMs: 150,
+    debounceMs: 200,
   });
 
   const [currentFen, setCurrentFen] = useState(STARTING_FEN);

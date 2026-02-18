@@ -253,6 +253,7 @@ export function stopAnalysis(): void {
     worker.postMessage('stop');
     messageCallback = null;
     bestMoveCallback = null;
+    // Don't clear multiPvLines here - keep showing previous results
   }
 }
 

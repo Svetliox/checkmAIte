@@ -162,7 +162,7 @@ function EvaluationPanel({
               style={{ width: `${getEvalBarWidth(evalScore, mateIn)}%` }}
             />
             <div className="absolute inset-0 flex items-center justify-center text-sm font-mono font-bold">
-              <span className={`${getEvalColor(evalScore, mateIn)} drop-shadow-sm`}>
+              <span style={{ color: '#00e5ff', textShadow: '0 0 4px rgba(0,0,0,0.8), 0 0 2px rgba(0,0,0,0.9)' }}>
                 {formatEval(evalScore, mateIn)}
               </span>
             </div>

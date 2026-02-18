@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Chessboard } from 'react-chessboard';
 import { Chess, type Square } from 'chess.js';
 import type { BoardOrientation } from '@/types';
@@ -24,6 +24,8 @@ interface ChessBoardProps {
   lightSquareColor?: string;
   /** Custom dark square color */
   darkSquareColor?: string;
+  /** Show internal Undo/Reset controls */
+  showControls?: boolean;
 }
 
 export function ChessBoard({
@@ -36,6 +38,7 @@ export function ChessBoard({
   showCoordinates = true,
   lightSquareColor = '#e8eaed',
   darkSquareColor = '#769656',
+  showControls = true,
 }: ChessBoardProps) {
   // Initialize chess instance with provided position or default
   const [game, setGame] = useState(() => {
@@ -53,6 +56,33 @@ export function ChessBoard({
   // Track selected square for highlighting
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
   const [moveSquares, setMoveSquares] = useState<Record<string, React.CSSProperties>>({});
+
+  // Track the last synced position to detect external changes
+  const lastSyncedPosition = useRef<string | undefined>(position);
+
+  // Sync with position prop when it changes externally (for undo/reset)
+  useEffect(() => {
+    if (position && position !== lastSyncedPosition.current) {
+      try {
+        const newGame = new Chess();
+        newGame.load(position);
+        // Only update if position actually differs from current game state
+        if (newGame.fen() !== game.fen()) {
+          // Use setTimeout to schedule update outside the effect
+          const timeoutId = setTimeout(() => {
+            setGame(newGame);
+            setSelectedSquare(null);
+            setMoveSquares({});
+          }, 0);
+          lastSyncedPosition.current = position;
+          return () => clearTimeout(timeoutId);
+        }
+        lastSyncedPosition.current = position;
+      } catch {
+        // Invalid FEN, ignore
+      }
+    }
+  }, [position, game]);
 
   // Calculate legal moves for selected piece
   const legalMoves = useMemo(() => {
@@ -85,7 +115,9 @@ export function ChessBoard({
       if (!interactive || !targetSquare) return false;
 
       try {
-        const move = game.move({
+        // Create a new game instance to avoid mutation issues
+        const newGame = new Chess(game.fen());
+        const move = newGame.move({
           from: sourceSquare as Square,
           to: targetSquare as Square,
           promotion: 'q', // Always promote to queen for simplicity
@@ -93,8 +125,14 @@ export function ChessBoard({
 
         if (move === null) return false;
 
+        const newFen = newGame.fen();
+        
+        // Update lastSyncedPosition BEFORE calling onPositionChange
+        // This prevents the sync effect from reverting the move
+        lastSyncedPosition.current = newFen;
+
         // Update game state
-        setGame(new Chess(game.fen()));
+        setGame(newGame);
         setSelectedSquare(null);
         setMoveSquares({
           [sourceSquare]: { backgroundColor: 'rgba(255, 255, 0, 0.4)' },
@@ -103,7 +141,7 @@ export function ChessBoard({
 
         // Notify parent components
         onMove?.({ from: sourceSquare as Square, to: targetSquare as Square, san: move.san });
-        onPositionChange?.(game.fen());
+        onPositionChange?.(newFen);
 
         return true;
       } catch {
@@ -122,21 +160,28 @@ export function ChessBoard({
       // If a piece is already selected, try to move
       if (selectedSquare) {
         try {
-          const move = game.move({
+          // Create a new game instance to avoid mutation issues
+          const newGame = new Chess(game.fen());
+          const move = newGame.move({
             from: selectedSquare,
             to: sq,
             promotion: 'q',
           });
 
           if (move) {
-            setGame(new Chess(game.fen()));
+            const newFen = newGame.fen();
+            
+            // Update lastSyncedPosition BEFORE calling onPositionChange
+            lastSyncedPosition.current = newFen;
+            
+            setGame(newGame);
             setSelectedSquare(null);
             setMoveSquares({
               [selectedSquare]: { backgroundColor: 'rgba(255, 255, 0, 0.4)' },
               [sq]: { backgroundColor: 'rgba(255, 255, 0, 0.4)' },
             });
             onMove?.({ from: selectedSquare, to: sq, san: move.san });
-            onPositionChange?.(game.fen());
+            onPositionChange?.(newFen);
             return;
           }
         } catch {
@@ -207,15 +252,18 @@ export function ChessBoard({
       </div>
 
       {/* Controls */}
-      {interactive && (
+      {interactive && showControls && (
         <div className="flex gap-2">
           <button
             onClick={() => {
-              game.undo();
-              setGame(new Chess(game.fen()));
+              const newGame = new Chess(game.fen());
+              newGame.undo();
+              const newFen = newGame.fen();
+              lastSyncedPosition.current = newFen;
+              setGame(newGame);
               setSelectedSquare(null);
               setMoveSquares({});
-              onPositionChange?.(game.fen());
+              onPositionChange?.(newFen);
             }}
             className="px-3 py-1.5 text-sm bg-surface-2 hover:bg-surface-3 rounded-lg transition-colors"
             disabled={game.history().length === 0}
@@ -225,10 +273,12 @@ export function ChessBoard({
           <button
             onClick={() => {
               const newGame = new Chess();
+              const newFen = newGame.fen();
+              lastSyncedPosition.current = newFen;
               setGame(newGame);
               setSelectedSquare(null);
               setMoveSquares({});
-              onPositionChange?.(newGame.fen());
+              onPositionChange?.(newFen);
             }}
             className="px-3 py-1.5 text-sm bg-surface-2 hover:bg-surface-3 rounded-lg transition-colors"
           >

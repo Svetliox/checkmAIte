@@ -10,7 +10,6 @@ Always after ,you complete a task, review the code for adherence to the project'
 ## Verification
 
 1. **Build check**: Run `npm run build` - should complete without errors
-2. **Dev server**: Run `npm run dev` - homepage renders at `localhost:3000`
-3. **TypeScript**: Run `npx tsc --noEmit` - no type errors
-4. **Lint**: Run `npm run lint` - passes ESLint
-5. **Chess board**: Interactive board renders and accepts drag-drop move
+2. **TypeScript**: Run `npx tsc --noEmit` - no type errors
+3. **Lint**: Run `npm run lint` - passes ESLint
+4. **Chess board**: Interactive board renders and accepts drag-drop move

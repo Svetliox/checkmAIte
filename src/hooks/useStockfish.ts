@@ -43,9 +43,9 @@ export interface UseStockfishOptions {
 
 const DEFAULT_OPTIONS: UseStockfishOptions = {
   autoAnalyze: true,
-  depth: 20,
+  depth: 12, // Lower depth for faster analysis
   multiPv: 3,
-  debounceMs: 150,
+  debounceMs: 200, // Faster response
 };
 
 /**
@@ -136,6 +136,11 @@ export function useStockfish(options: UseStockfishOptions = {}) {
 
   // Handle info callback
   const handleInfo = useCallback((fen: string, info: EngineInfo) => {
+    // Ignore info if it's for a different position (stale callback)
+    if (currentAnalysisFen.current !== fen) {
+      return;
+    }
+    
     const chess = new Chess(fen);
     const isWhiteTurn = chess.turn() === 'w';
     
@@ -143,7 +148,7 @@ export function useStockfish(options: UseStockfishOptions = {}) {
     const adjustedScore = isWhiteTurn ? info.score : -info.score;
     const adjustedMate = info.mate ? (isWhiteTurn ? info.mate : -info.mate) : null;
     
-    // Get multi-PV lines and convert to SAN
+    // Get multi-PV lines and convert to SAN for the CURRENT position
     const pvLines = getMultiPvLines().map(line => ({
       ...line,
       sanMoves: uciLinesToSan(fen, line.moves),
@@ -173,6 +178,11 @@ export function useStockfish(options: UseStockfishOptions = {}) {
 
   // Handle best move callback
   const handleBestMove = useCallback((fen: string, move: string) => {
+    // Ignore bestmove if it's for a different position (stale callback)
+    if (currentAnalysisFen.current !== fen) {
+      return;
+    }
+    
     const bestMoveSan = uciToSan(fen, move);
     
     setAnalysis(prev => prev ? {
@@ -202,6 +212,8 @@ export function useStockfish(options: UseStockfishOptions = {}) {
     currentAnalysisFen.current = fen;
     setStatus('analyzing');
     setCurrentFen(fen);
+    
+    // Don't clear analysis - keep showing previous results until new ones arrive
     
     stockfishAnalyze(
       fen,
