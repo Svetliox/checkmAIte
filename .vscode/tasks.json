@@ -1,0 +1,19 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "mkdir play-vs-bot",
+			"type": "shell",
+			"command": "mkdir src/app/analysis/play-vs-bot",
+			"args": [],
+			"isBackground": false
+		},
+		{
+			"label": "mkdir analysis/board",
+			"type": "shell",
+			"command": "mkdir src/app/analysis/board",
+			"args": [],
+			"isBackground": false
+		}
+	]
+}
