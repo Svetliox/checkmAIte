@@ -3,7 +3,7 @@ applyTo: "**"
 ---
 Before starting implementing new features in the back-end ,always consult with Next.js expert to ensure that your implementation aligns with the best practices and architectural decisions of the project. This will help avoid potential issues and ensure that your code integrates smoothly with the existing codebase.
 
-For docker and containerization related tasks, always refer to the [containerization-docker-best-practices.instructions.md](.github/instructions/containerization-docker-best-practices.instructions.md) for guidance on how to properly set up and configure your Docker environment. This will help ensure that your containerized applications are efficient, secure, and maintainable.
+Before starting to implement new features in the front-end, always consult with a React expert to ensure that your use the C:\Users\USER\Documents\Projects\checkmAIte\.github\skills\web-desgn\SKILL.md guidelines and best practices. This will help ensure that your implementation is consistent with the overall design and user experience goals of the project.
 
 Always after ,you complete a task, review the code for adherence to the project's coding guidelines and best practices. Ensure that your code is clean, well-documented, and follows the established conventions for naming, formatting, and structure. This will help maintain code quality and consistency across the project. And also do the verification below:
 

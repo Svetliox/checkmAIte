@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Chessboard } from 'react-chessboard';
 import { Chess, type Square } from 'chess.js';
+import { Button } from '@/components/ui';
 import type { BoardOrientation } from '@/types';
 
 interface ChessBoardProps {
@@ -26,6 +27,14 @@ interface ChessBoardProps {
   darkSquareColor?: string;
   /** Show internal Undo/Reset controls */
   showControls?: boolean;
+  /** Callback to flip board orientation */
+  onFlipBoard?: () => void;
+  /** Callback to undo last move */
+  onUndoMove?: () => void;
+  /** Callback to reset the game */
+  onNewGame?: () => void;
+  /** Whether undo is available */
+  canUndo?: boolean;
 }
 
 export function ChessBoard({
@@ -39,6 +48,10 @@ export function ChessBoard({
   lightSquareColor = '#e8eaed',
   darkSquareColor = '#769656',
   showControls = true,
+  onFlipBoard,
+  onUndoMove,
+  onNewGame,
+  canUndo = false,
 }: ChessBoardProps) {
   // Initialize chess instance with provided position or default
   const [game, setGame] = useState(() => {
@@ -253,39 +266,80 @@ export function ChessBoard({
 
       {/* Controls */}
       {interactive && showControls && (
-        <div className="flex gap-2">
-          <button
-            onClick={() => {
-              const newGame = new Chess(game.fen());
-              newGame.undo();
-              const newFen = newGame.fen();
-              lastSyncedPosition.current = newFen;
-              setGame(newGame);
-              setSelectedSquare(null);
-              setMoveSquares({});
-              onPositionChange?.(newFen);
-            }}
-            className="px-3 py-1.5 text-sm bg-surface-2 hover:bg-surface-3 rounded-lg transition-colors"
-            disabled={game.history().length === 0}
-          >
-            Undo
-          </button>
-          <button
-            onClick={() => {
-              const newGame = new Chess();
-              const newFen = newGame.fen();
-              lastSyncedPosition.current = newFen;
-              setGame(newGame);
-              setSelectedSquare(null);
-              setMoveSquares({});
-              onPositionChange?.(newFen);
-            }}
-            className="px-3 py-1.5 text-sm bg-surface-2 hover:bg-surface-3 rounded-lg transition-colors"
-          >
-            Reset
-          </button>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          {onFlipBoard && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={onFlipBoard}
+              aria-label="Flip board orientation"
+            >
+              <FlipIcon className="w-4 h-4" aria-hidden="true" />
+              Flip Board
+            </Button>
+          )}
+          {onUndoMove && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={onUndoMove}
+              disabled={!canUndo}
+              aria-label="Undo last move"
+            >
+              <UndoIcon className="w-4 h-4" aria-hidden="true" />
+              Undo
+            </Button>
+          )}
+          {onNewGame && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={onNewGame}
+              aria-label="Start a new game"
+            >
+              <ResetIcon className="w-4 h-4" aria-hidden="true" />
+              New Game
+            </Button>
+          )}
         </div>
       )}
     </div>
+  );
+}
+
+// Icon components
+function FlipIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+      />
+    </svg>
+  );
+}
+
+function UndoIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"
+      />
+    </svg>
+  );
+}
+
+function ResetIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+      />
+    </svg>
   );
 }

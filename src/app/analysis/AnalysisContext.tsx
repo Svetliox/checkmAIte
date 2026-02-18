@@ -22,6 +22,14 @@ export interface PlayStatistics {
   blackCpLosses: number[];
 }
 
+// State snapshot for undo functionality
+interface StateSnapshot {
+  fen: string;
+  moveHistory: string[];
+  statistics: PlayStatistics;
+  previousEval: number;
+}
+
 // Context value type
 interface AnalysisContextValue {
   // Engine state
@@ -45,6 +53,7 @@ interface AnalysisContextValue {
   // Actions
   setFen: (fen: string) => void;
   addMove: (san: string, evaluation: number, wasWhite: boolean) => void;
+  undoLastMove: () => void;
   resetGame: () => void;
 }
 
@@ -66,7 +75,7 @@ function classifyFromCpLoss(cpLoss: number): MoveClassification {
 export function AnalysisProvider({ children }: { children: ReactNode }) {
   const stockfish = useStockfish({
     autoAnalyze: true,
-    depth: 12, // Lower depth for faster response
+    depth: 12, 
     multiPv: 3,
     debounceMs: 200,
   });
@@ -83,6 +92,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
     whiteCpLosses: [],
     blackCpLosses: [],
   });
+  const [historyStack, setHistoryStack] = useState<StateSnapshot[]>([]);
 
   // Handle FEN changes
   const handleSetFen = useCallback((fen: string) => {
@@ -92,6 +102,14 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
 
   // Add a move and update statistics
   const addMove = useCallback((san: string, evaluation: number, wasWhite: boolean) => {
+    // Save current state snapshot before making changes
+    setHistoryStack(prev => [...prev, {
+      fen: currentFen,
+      moveHistory: [...moveHistory],
+      statistics: { ...statistics },
+      previousEval,
+    }]);
+    
     setMoveHistory(prev => [...prev, san]);
     
     // Calculate centipawn loss
@@ -137,7 +155,25 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
     
     // Update previous eval for next move
     setPreviousEval(evaluation);
-  }, [previousEval]);
+  }, [previousEval, currentFen, moveHistory, statistics]);
+
+  // Undo the last move
+  const undoLastMove = useCallback(() => {
+    if (historyStack.length === 0) return;
+    
+    // Pop the last state snapshot
+    const previousState = historyStack[historyStack.length - 1];
+    setHistoryStack(prev => prev.slice(0, -1));
+    
+    // Restore all state
+    setCurrentFen(previousState.fen);
+    setMoveHistory(previousState.moveHistory);
+    setStatistics(previousState.statistics);
+    setPreviousEval(previousState.previousEval);
+    
+    // Trigger analysis for the restored position
+    stockfish.setFen(previousState.fen);
+  }, [historyStack, stockfish]);
 
   // Reset the game
   const resetGame = useCallback(() => {
@@ -153,6 +189,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
       whiteCpLosses: [],
       blackCpLosses: [],
     });
+    setHistoryStack([]);
     stockfish.setFen(STARTING_FEN);
   }, [stockfish]);
 
@@ -180,6 +217,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
     blackAccuracy,
     setFen: handleSetFen,
     addMove,
+    undoLastMove,
     resetGame,
   };
 

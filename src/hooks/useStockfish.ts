@@ -210,10 +210,29 @@ export function useStockfish(options: UseStockfishOptions = {}) {
     stockfishStop();
     
     currentAnalysisFen.current = fen;
-    setStatus('analyzing');
     setCurrentFen(fen);
     
-    // Don't clear analysis - keep showing previous results until new ones arrive
+    // If this is the starting position, keep initial state and don't analyze
+    const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+    if (fen === STARTING_FEN) {
+      setStatus('ready');
+      setAnalysis({
+        evaluation: 0,
+        mate: null,
+        depth: 0,
+        targetDepth: opts.depth || 20,
+        bestMove: '',
+        bestMoveSan: '',
+        topMoves: [],
+        nodes: 0,
+        nps: 0,
+        time: 0,
+        isWhiteTurn: true,
+      });
+      return; // Don't analyze starting position
+    }
+    
+    setStatus('analyzing');
     
     stockfishAnalyze(
       fen,
@@ -251,9 +270,26 @@ export function useStockfish(options: UseStockfishOptions = {}) {
   // Auto-analyze when FEN changes
   const setFen = useCallback((fen: string) => {
     if (opts.autoAnalyze && status === 'ready' || status === 'analyzing') {
+      // Immediately show initial state for starting position
+      const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+      if (fen === STARTING_FEN) {
+        setAnalysis({
+          evaluation: 0,
+          mate: null,
+          depth: 0,
+          targetDepth: opts.depth || 20,
+          bestMove: '',
+          bestMoveSan: '',
+          topMoves: [],
+          nodes: 0,
+          nps: 0,
+          time: 0,
+          isWhiteTurn: true,
+        });
+      }
       analyzeDebounced(fen);
     }
-  }, [opts.autoAnalyze, status, analyzeDebounced]);
+  }, [opts.autoAnalyze, opts.depth, status, analyzeDebounced]);
 
   return {
     status,

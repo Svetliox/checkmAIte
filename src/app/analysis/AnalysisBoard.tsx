@@ -3,7 +3,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Chess } from 'chess.js';
 import { ChessBoard } from '@/components/chess';
-import { Button } from '@/components/ui';
 import type { BoardOrientation } from '@/types';
 import { useAnalysis } from './AnalysisContext';
 
@@ -21,7 +20,9 @@ export function AnalysisBoard() {
     moveHistory, 
     analysis,
     isAnalyzing,
+    undoLastMove,
     resetGame,
+    currentFen,
   } = useAnalysis();
   
   const chessRef = useRef(new Chess());
@@ -33,6 +34,19 @@ export function AnalysisBoard() {
       previousEvalRef.current = analysis.evaluation;
     }
   }, [analysis]);
+
+  // Sync chessRef when position changes externally (undo/reset)
+  useEffect(() => {
+    try {
+      const newChess = new Chess();
+      newChess.load(currentFen);
+      if (newChess.fen() !== chessRef.current.fen()) {
+        chessRef.current = newChess;
+      }
+    } catch {
+      // Invalid FEN, ignore
+    }
+  }, [currentFen]);
 
   const handleMove = useCallback(
     (move: { from: string; to: string; san: string }) => {
@@ -63,12 +77,6 @@ export function AnalysisBoard() {
   );
 
   const handlePositionChange = useCallback((fen: string) => {
-    // Sync our chess instance
-    try {
-      chessRef.current.load(fen);
-    } catch {
-      // Invalid FEN, ignore
-    }
     setFen(fen);
   }, [setFen]);
 
@@ -76,7 +84,11 @@ export function AnalysisBoard() {
     setOrientation((prev) => (prev === 'white' ? 'black' : 'white'));
   }, []);
 
-  const handleReset = useCallback(() => {
+  const handleUndo = useCallback(() => {
+    undoLastMove();
+  }, [undoLastMove]);
+
+  const handleNewGame = useCallback(() => {
     chessRef.current = new Chess();
     previousEvalRef.current = 0;
     resetGame();
@@ -84,35 +96,29 @@ export function AnalysisBoard() {
 
   return (
     <div className="flex flex-col items-center gap-6">
-      {/* Board */}
+      {/* Board with unified controls */}
       <ChessBoard
+        position={currentFen}
         orientation={orientation}
         interactive={true}
         boardWidth={520}
         onMove={handleMove}
         onPositionChange={handlePositionChange}
         showCoordinates={true}
+        showControls={true}
+        onFlipBoard={flipBoard}
+        onUndoMove={handleUndo}
+        onNewGame={handleNewGame}
+        canUndo={moveHistory.length > 0}
       />
 
       {/* Engine status indicator */}
       {isAnalyzing && (
         <div className="flex items-center gap-2 text-sm text-foreground/60">
           <div className="w-2 h-2 rounded-full bg-accent-primary animate-pulse" />
-          Analyzing...
+          Analyzing…
         </div>
       )}
-
-      {/* Controls */}
-      <div className="flex flex-wrap items-center justify-center gap-3">
-        <Button variant="outline" size="sm" onClick={flipBoard}>
-          <FlipIcon className="w-4 h-4 mr-2" />
-          Flip Board
-        </Button>
-        <Button variant="outline" size="sm" onClick={handleReset}>
-          <ResetIcon className="w-4 h-4 mr-2" />
-          New Game
-        </Button>
-      </div>
 
       {/* Move history (simple display) */}
       {moveHistory.length > 0 && (
@@ -133,32 +139,5 @@ export function AnalysisBoard() {
         </div>
       )}
     </div>
-  );
-}
-
-// Icons
-function FlipIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
-      />
-    </svg>
-  );
-}
-
-function ResetIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-      />
-    </svg>
   );
 }

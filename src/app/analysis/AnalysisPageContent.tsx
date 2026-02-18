@@ -132,16 +132,6 @@ function EvaluationPanel({
     return Math.min(100, Math.max(0, winProb));
   };
 
-  // Get eval color based on advantage
-  const getEvalColor = (score: number, mate: number | null): string => {
-    if (mate !== null) {
-      return mate > 0 ? 'text-accent-success' : 'text-accent-danger';
-    }
-    if (score > 100) return 'text-accent-success';
-    if (score < -100) return 'text-accent-danger';
-    return 'text-foreground';
-  };
-
   const evalScore = analysis?.evaluation || 0;
   const mateIn = analysis?.mate || null;
   const depth = analysis?.depth || 0;
