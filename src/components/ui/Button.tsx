@@ -23,23 +23,33 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+      'inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-transform shadow-sm touch-manipulation ' +
+      'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background ' +
+      'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none ' +
+      'active:scale-95';
 
     const variants = {
       primary:
-        'bg-accent-primary text-white hover:bg-accent-primary/90 focus-visible:ring-accent-primary',
+        'bg-gradient-to-b from-accent-primary to-accent-primary/90 text-white shadow-md ' +
+        'hover:shadow-lg hover:from-accent-primary/95 hover:to-accent-primary/85 ' +
+        'active:shadow-sm focus-visible:ring-accent-primary',
       secondary:
-        'bg-accent-secondary text-white hover:bg-accent-secondary/90 focus-visible:ring-accent-secondary',
+        'bg-gradient-to-b from-accent-secondary to-accent-secondary/90 text-white shadow-md ' +
+        'hover:shadow-lg hover:from-accent-secondary/95 hover:to-accent-secondary/85 ' +
+        'active:shadow-sm focus-visible:ring-accent-secondary',
       outline:
-        'border-2 border-border-default text-foreground hover:border-accent-primary hover:text-accent-primary focus-visible:ring-accent-primary',
+        'border-2 border-border-default bg-surface-1 text-foreground shadow ' +
+        'hover:border-accent-primary hover:bg-accent-primary/5 hover:shadow-md ' +
+        'active:shadow-sm focus-visible:ring-accent-primary',
       ghost:
-        'text-foreground hover:bg-surface-2 focus-visible:ring-accent-primary',
+        'text-foreground/80 hover:text-foreground hover:bg-surface-2/80 ' +
+        'active:bg-surface-3 focus-visible:ring-accent-primary',
     };
 
     const sizes = {
-      sm: 'px-3 py-1.5 text-sm',
-      md: 'px-4 py-2 text-base',
-      lg: 'px-6 py-3 text-lg',
+      sm: 'px-3 py-2 text-sm min-h-[36px]',
+      md: 'px-5 py-2.5 text-base min-h-[44px]',
+      lg: 'px-7 py-3.5 text-lg min-h-[52px]',
     };
 
     return (
@@ -52,10 +62,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {isLoading ? (
           <>
             <svg
-              className="animate-spin -ml-1 mr-2 h-4 w-4"
+              className="animate-spin h-4 w-4"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <circle
                 className="opacity-25"
@@ -71,7 +82,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               />
             </svg>
-            Loading...
+            <span>Loading…</span>
           </>
         ) : (
           children
