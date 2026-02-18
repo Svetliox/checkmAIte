@@ -146,6 +146,9 @@ function handleMessage(event: MessageEvent): void {
 
 /**
  * Initialize the Stockfish engine
+ * 
+ * The engine files are copied from node_modules/stockfish during npm install.
+ * This avoids bundling large WASM files (100MB+) in the repository.
  */
 export async function initStockfish(config?: Partial<EngineConfig>): Promise<void> {
   if (worker) {
@@ -159,9 +162,8 @@ export async function initStockfish(config?: Partial<EngineConfig>): Promise<voi
 
   return new Promise((resolve, reject) => {
     try {
-      // Load stockfish-18-single.js directly as a worker
-      // This file is self-initializing and handles onmessage/postMessage
-      worker = new Worker('/stockfish/stockfish-18-single.js');
+      // Load Stockfish worker (files copied from node_modules during postinstall)
+      worker = new Worker('/stockfish/stockfish.js');
       
       // Message handler during initialization
       const initHandler = (event: MessageEvent) => {
