@@ -219,21 +219,34 @@ export function ChessBoard({
     [selectedSquare, game, interactive, onMove, onPositionChange]
   );
 
-  // Check game status
+  // Check game status and style
   const gameStatus = useMemo(() => {
     if (game.isCheckmate()) {
-      return `Checkmate! ${game.turn() === 'w' ? 'Black' : 'White'} wins!`;
+      return {
+        text: `Checkmate! ${game.turn() === 'w' ? 'Black' : 'White'} wins!`,
+        color: 'bg-red-600 text-white',
+      };
     }
     if (game.isDraw()) {
-      if (game.isStalemate()) return "Stalemate - It's a draw!";
-      if (game.isThreefoldRepetition()) return 'Threefold repetition - Draw!';
-      if (game.isInsufficientMaterial()) return 'Insufficient material - Draw!';
-      return "It's a draw!";
+      let text = "It's a draw!";
+      if (game.isStalemate()) text = "Stalemate - It's a draw!";
+      if (game.isThreefoldRepetition()) text = 'Threefold repetition - Draw!';
+      if (game.isInsufficientMaterial()) text = 'Insufficient material - Draw!';
+      return {
+        text,
+        color: 'bg-surface-2 text-foreground',
+      };
     }
     if (game.isCheck()) {
-      return `${game.turn() === 'w' ? 'White' : 'Black'} is in check!`;
+      return {
+        text: `${game.turn() === 'w' ? 'White' : 'Black'} is in check!`,
+        color: 'bg-yellow-400 text-black',
+      };
     }
-    return `${game.turn() === 'w' ? 'White' : 'Black'} to move`;
+    return {
+      text: `${game.turn() === 'w' ? 'White' : 'Black'} to move`,
+      color: 'bg-surface-2 text-foreground',
+    };
   }, [game]);
 
   // Calculate board width based on container
@@ -241,8 +254,15 @@ export function ChessBoard({
 
   return (
     <div className="flex flex-col items-center gap-4">
-      {/* Status indicator */}
-      <div className="text-sm font-medium text-foreground/80">{gameStatus}</div>
+      {/* Status indicator - larger, color-coded */}
+      <div
+        className={`flex items-center justify-center gap-2 px-4 py-2 rounded-xl shadow-md border border-border-default transition-colors duration-300 ${gameStatus.color}`}
+        style={{ minWidth: '180px', textAlign: 'center', fontSize: '1rem', letterSpacing: '0.02em', fontFamily: 'inherit', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
+        aria-live="polite"
+      >
+        <span className="text-xl" aria-hidden="true">{gameStatus.text.includes('White') ? '♔' : gameStatus.text.includes('Black') ? '♚' : '♟'}</span>
+        <span className="font-medium tracking-wide" style={{ flex: 1 }}>{gameStatus.text}</span>
+      </div>
 
       {/* Chess board */}
       <div className="rounded-lg overflow-hidden shadow-2xl" style={{ width: actualBoardWidth, height: actualBoardWidth }}>

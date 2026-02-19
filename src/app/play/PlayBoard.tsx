@@ -24,6 +24,7 @@ export function PlayBoard({ className }: PlayBoardProps) {
     isBotThinking,
     gameResult,
     makePlayerMove,
+    resetGame,
   } = usePlay();
 
   // Handle move from the chess board
@@ -35,6 +36,43 @@ export function PlayBoard({ className }: PlayBoardProps) {
   // Board is interactive only when it's player's turn and game is ongoing
   const isInteractive = isPlayerTurn && gameResult.type === 'ongoing';
 
+  // Show result info below board if game ended
+  let resultPanel: React.ReactNode = null;
+  if (gameResult.type !== 'ongoing') {
+    let title = '';
+    let titleColor = 'text-foreground';
+    if (gameResult.type === 'checkmate') {
+      const playerWon = gameResult.winner === playerColor;
+      title = playerWon ? 'You Win!' : 'You Lose!';
+      if (playerWon) title = 'You Win!';
+      titleColor = playerWon ? 'text-accent-success' : 'text-accent-danger';
+    } else if (gameResult.type === 'draw') {
+      title = 'Draw';
+      titleColor = 'text-accent-warning';
+    }
+    resultPanel = (
+      <div className="w-full flex flex-col items-center mt-4">
+        <div className="rounded-xl border border-border-default bg-surface-1 px-6 py-4 shadow text-center max-w-xs">
+          <div className={`text-xl font-bold mb-3 ${titleColor}`}>{title}</div>
+          <div className="flex gap-3 justify-center mt-2">
+            <button
+              className="px-4 py-2 rounded-lg bg-accent-primary text-white font-semibold hover:bg-accent-primary/90 transition-colors"
+              onClick={resetGame}
+            >
+              Play Again
+            </button>
+            <button
+              className="px-4 py-2 rounded-lg border border-accent-primary text-accent-primary font-semibold hover:bg-accent-primary/10 transition-colors"
+              onClick={() => window.location.href = '/play'}
+            >
+              New Game
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={cn('relative', className)}>
       {/* Chess Board */}
@@ -45,11 +83,10 @@ export function PlayBoard({ className }: PlayBoardProps) {
         onMove={handleMove}
         showControls={false}
       />
-      
       {/* Bot Thinking Overlay */}
-      {isBotThinking && (
-        <BotThinkingOverlay />
-      )}
+      {isBotThinking && <BotThinkingOverlay />}
+      {/* Result info below board */}
+      {resultPanel}
     </div>
   );
 }

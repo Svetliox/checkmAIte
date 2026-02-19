@@ -117,15 +117,7 @@ function PlayLayout() {
               <PlayBoard />
             </Card>
 
-            {/* Game result display */}
-            {gameResult.type !== 'ongoing' && (
-              <GameResultCard
-                result={gameResult}
-                playerColor={playerColor}
-                onPlayAgain={resetGame}
-                onNewGame={backToSetup}
-              />
-            )}
+            {/* Game result display removed: now handled in PlayBoard below the board */}
           </div>
 
           {/* Right column: Controls and hints */}
