@@ -152,9 +152,29 @@ function handleMessage(event: MessageEvent): void {
  * This avoids bundling large WASM files (100MB+) in the repository.
  */
 export async function initStockfish(config?: Partial<EngineConfig>): Promise<void> {
-  if (worker) {
-    console.log('[Stockfish] Already initialized');
+  // If worker exists and is ready, return immediately
+  if (worker && isReady) {
+    console.log('[Stockfish] Already initialized and ready');
     return;
+  }
+  
+  // If worker exists but not ready yet, wait for it
+  if (worker && !isReady) {
+    console.log('[Stockfish] Already initializing, waiting for ready...');
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('Stockfish initialization timeout (waiting)'));
+      }, 30000);
+      
+      const readyCheck = setInterval(() => {
+        if (isReady) {
+          clearInterval(readyCheck);
+          clearTimeout(timeout);
+          console.log('[Stockfish] Engine ready (waited)');
+          resolve();
+        }
+      }, 100);
+    });
   }
 
   if (config) {
