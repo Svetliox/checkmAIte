@@ -37,9 +37,9 @@ export function HeroSection() {
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Link href="/analysis">
+              <Link href="/modes">
                 <Button size="lg" className="w-full sm:w-auto">
-                  Start Analyzing
+                  Get Started
                   <ArrowRightIcon className="ml-2 h-5 w-5" />
                 </Button>
               </Link>

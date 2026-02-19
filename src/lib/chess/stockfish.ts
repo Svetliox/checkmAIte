@@ -10,6 +10,7 @@ import type { EngineConfig, EngineInfo, MultiPvLine } from '@/types';
 // Engine state
 let worker: Worker | null = null;
 let isReady = false;
+let isAnalyzingFlag = false;
 let messageCallback: ((info: EngineInfo) => void) | null = null;
 let bestMoveCallback: ((move: string, ponder?: string) => void) | null = null;
 const multiPvLines: Map<number, MultiPvLine> = new Map();
@@ -206,6 +207,12 @@ export async function initStockfish(config?: Partial<EngineConfig>): Promise<voi
           // Switch to normal message handler
           if (worker) {
             worker.onmessage = handleMessage;
+            // Keep a permanent error handler
+            worker.onerror = (e) => {
+              console.error('[Stockfish] Worker error:', e);
+              // Don't crash the app, just log the error
+              // The game can continue if possible
+            };
           }
           
           // Configure engine options
@@ -237,10 +244,14 @@ export function analyzePosition(
 
   // Clear previous analysis
   multiPvLines.clear();
+  isAnalyzingFlag = true;
   
-  // Set callbacks
+  // Set callbacks - wrap bestMove to clear flag
   messageCallback = onInfo || null;
-  bestMoveCallback = onBestMove || null;
+  bestMoveCallback = (move: string, ponder?: string) => {
+    isAnalyzingFlag = false;
+    onBestMove?.(move, ponder);
+  };
 
   // Set position and start analysis
   worker.postMessage(`position fen ${fen}`);
@@ -255,8 +266,16 @@ export function stopAnalysis(): void {
     worker.postMessage('stop');
     messageCallback = null;
     bestMoveCallback = null;
+    isAnalyzingFlag = false;
     // Don't clear multiPvLines here - keep showing previous results
   }
+}
+
+/**
+ * Check if engine is currently analyzing
+ */
+export function isCurrentlyAnalyzing(): boolean {
+  return isAnalyzingFlag;
 }
 
 /**

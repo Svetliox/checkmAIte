@@ -144,3 +144,40 @@ export interface MoveAnalysis {
   classification: MoveClassification;
   centipawnLoss: number;
 }
+
+// ============================================
+// Play vs Bot Mode Types
+// ============================================
+
+/** Game mode - analysis or play against bot */
+export type GameMode = 'analysis' | 'vsBot';
+
+/** Player's chosen color */
+export type PlayerColor = 'white' | 'black';
+
+/** Bot difficulty level */
+export type BotDifficulty = 'easy' | 'medium' | 'hard';
+
+/** Difficulty settings mapping */
+export const BOT_DIFFICULTY_CONFIG: Record<BotDifficulty, { depth: number; label: string }> = {
+  easy: { depth: 4, label: 'Easy' },
+  medium: { depth: 8, label: 'Medium' },
+  hard: { depth: 15, label: 'Hard' },
+};
+
+/** Game result */
+export type GameResult = 
+  | { type: 'ongoing' }
+  | { type: 'checkmate'; winner: PlayerColor }
+  | { type: 'draw'; reason: 'stalemate' | 'insufficient' | 'threefold' | 'fifty-move' }
+  | { type: 'resignation'; winner: PlayerColor };
+
+/** Play game state */
+export interface PlayGameState {
+  playerColor: PlayerColor;
+  difficulty: BotDifficulty;
+  isPlayerTurn: boolean;
+  isBotThinking: boolean;
+  gameResult: GameResult;
+  showBestMoves: boolean;
+}

@@ -257,6 +257,17 @@ export function ChessBoard({
             boardStyle: {
               borderRadius: '8px',
             },
+            // Notation styling - make coordinates more visible
+            lightSquareNotationStyle: {
+              fontSize: '16px',
+              fontWeight: '700',
+              color: '#ef4444',
+            },
+            darkSquareNotationStyle: {
+              fontSize: '16px',
+              fontWeight: '700',
+              color: '#ef4444',
+            },
             squareStyles: getMoveSquareStyles(),
             onPieceDrop: handlePieceDrop,
             onSquareClick: handleSquareClick,
