@@ -45,27 +45,7 @@ export function HeroSection() {
               </Link>
             </div>
 
-            {/* Stats */}
-            <div className="mt-12 grid grid-cols-3 gap-8 border-t border-border-default pt-8">
-              <div>
-                <div className="text-2xl sm:text-3xl font-bold text-accent-primary">
-                  10M+
-                </div>
-                <div className="text-sm text-foreground/60">Games Analyzed</div>
-              </div>
-              <div>
-                <div className="text-2xl sm:text-3xl font-bold text-accent-secondary">
-                  50K+
-                </div>
-                <div className="text-sm text-foreground/60">Active Players</div>
-              </div>
-              <div>
-                <div className="text-2xl sm:text-3xl font-bold text-accent-success">
-                  99%
-                </div>
-                <div className="text-sm text-foreground/60">Accuracy</div>
-              </div>
-            </div>
+            {/* Stats removed as requested */}
           </div>
 
           {/* Hero illustration - Chess board preview */}

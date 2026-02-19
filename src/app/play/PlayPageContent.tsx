@@ -259,17 +259,26 @@ function MoveHistoryPanel({ moves }: MoveHistoryPanelProps) {
   return (
     <Card variant="bordered">
       <CardContent className="p-4">
-        <h3 className="text-sm font-medium text-foreground/80 uppercase tracking-wide mb-3">
-          Moves
+        <h3 className="text-base font-semibold text-foreground/90 tracking-wide mb-2">
+          <span className="inline-block align-middle mr-2">♟️</span>Moves
         </h3>
-        <div className="max-h-48 overflow-y-auto space-y-1">
-          {movePairs.map((pair) => (
-            <div key={pair.number} className="flex text-sm font-mono">
-              <span className="w-8 text-foreground/50">{pair.number}.</span>
-              <span className="w-16">{pair.white || ''}</span>
-              <span className="w-16 text-foreground/80">{pair.black || ''}</span>
-            </div>
-          ))}
+        <div className="rounded-lg bg-surface-2/60 border border-border-default px-2 py-2 shadow-inner">
+          <div className="flex text-xs font-semibold mb-2 pl-8 pr-2">
+            <span className="w-16 text-left text-foreground/60">White</span>
+            <span className="w-16 text-left text-foreground/60">Black</span>
+          </div>
+          <div className="max-h-48 overflow-y-auto divide-y divide-border-default">
+            {movePairs.map((pair) => (
+              <div
+                key={pair.number}
+                className="flex text-[15px] font-mono items-center py-1 hover:bg-surface-1/60 rounded transition-colors"
+              >
+                <span className="w-8 text-foreground/40 text-right pr-1">{pair.number}.</span>
+                <span className="w-16 text-left text-accent-primary font-medium">{pair.white || ''}</span>
+                <span className="w-16 text-left text-accent-secondary font-medium">{pair.black || ''}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </CardContent>
     </Card>
