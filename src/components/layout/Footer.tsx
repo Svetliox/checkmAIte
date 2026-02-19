@@ -2,10 +2,9 @@ import Link from 'next/link';
 import { Container } from '@/components/ui';
 
 const footerLinks = {
-  product: [
-    { href: '/analysis', label: 'Analysis Board' },
+  project: [
     { href: '/features', label: 'Features' },
-    { href: '/pricing', label: 'Show my perfect 404 page!' },
+    { href: '/not-found', label: 'Show my perfect 404 page!' },
   ],
 };
 
@@ -33,11 +32,11 @@ export function Footer() {
               </p>
             </div>
 
-            {/* Links */}
+            {/* Project Links */}
             <div>
-              <h4 className="font-semibold text-foreground mb-4">Product</h4>
+              <h4 className="font-semibold text-foreground mb-4">Project</h4>
               <ul className="space-y-2">
-                {footerLinks.product.map((link) => (
+                {footerLinks.project.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
