@@ -1,19 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { ApiResponse, AnalysisResult, ChessPosition } from '@/types';
 
-/**
- * Analysis API Route Handler
- * 
- * POST /api/analysis
- * Analyzes a chess position and returns engine evaluation.
- * 
- * Request body:
- * - fen: string (FEN notation of the position)
- * - depth?: number (optional analysis depth, defaults to 20)
- * 
- * TODO: Integrate with actual Stockfish WASM engine
- */
-
 interface AnalysisRequest {
   fen: ChessPosition;
   depth?: number;
@@ -25,7 +12,6 @@ export async function POST(
   try {
     const body = (await request.json()) as AnalysisRequest;
 
-    // Validate FEN
     if (!body.fen || typeof body.fen !== 'string') {
       return NextResponse.json(
         {
@@ -37,7 +23,6 @@ export async function POST(
       );
     }
 
-    // Basic FEN validation (check structure)
     const fenParts = body.fen.split(' ');
     if (fenParts.length < 1 || fenParts.length > 6) {
       return NextResponse.json(
@@ -52,15 +37,13 @@ export async function POST(
 
     const depth = body.depth || 20;
 
-    // TODO: Replace with actual Stockfish analysis
-    // For now, return mock analysis data
     const mockAnalysis: AnalysisResult = {
       bestMove: {
         from: 'e2',
         to: 'e4',
         san: 'e4',
       },
-      evaluation: 30, // +0.30 in centipawns
+      evaluation: 30,
       depth: depth,
       pv: [
         { from: 'e2', to: 'e4', san: 'e4' },
@@ -91,10 +74,6 @@ export async function POST(
   }
 }
 
-/**
- * GET /api/analysis
- * Returns information about the analysis endpoint.
- */
 export async function GET(): Promise<NextResponse> {
   return NextResponse.json({
     endpoint: '/api/analysis',

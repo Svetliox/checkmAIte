@@ -1,13 +1,8 @@
-/**
- * AI Chat Prompt Builder for Chess Commentary
- * 
- * Converts chess positions and game state into prompts for AI commentary.
- * Generates friendly, educational, and slightly humorous chess analysis.
- */
+
 
 import type { AIChatRequest } from '@/types';
 
-/** Piece names for human-readable descriptions */
+ 
 const PIECE_NAMES: Record<string, string> = {
   K: 'King',
   Q: 'Queen',
@@ -23,12 +18,10 @@ const PIECE_NAMES: Record<string, string> = {
   p: 'Pawn',
 };
 
-/** File letters for coordinate notation */
+ 
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
-/**
- * Parse FEN to get piece positions
- */
+ 
 function parseFenToPieces(fen: string): { white: string[]; black: string[] } {
   const [position] = fen.split(' ');
   const whitePieces: string[] = [];
@@ -59,9 +52,7 @@ function parseFenToPieces(fen: string): { white: string[]; black: string[] } {
   return { white: whitePieces, black: blackPieces };
 }
 
-/**
- * Determine the game phase based on piece count and move number
- */
+ 
 function determineGamePhase(fen: string, moveCount: number): 'opening' | 'middlegame' | 'endgame' {
   const [position] = fen.split(' ');
   
@@ -77,17 +68,13 @@ function determineGamePhase(fen: string, moveCount: number): 'opening' | 'middle
   return 'middlegame';
 }
 
-/**
- * Get whose turn it is from FEN
- */
+ 
 function getTurnFromFen(fen: string): 'white' | 'black' {
   const parts = fen.split(' ');
   return parts[1] === 'w' ? 'white' : 'black';
 }
 
-/**
- * Build the system prompt for the AI
- */
+ 
 function buildSystemPrompt(): string {
   return `You are checkmAIte, a friendly and knowledgeable chess companion. Your personality:
 - Enthusiastic about chess but never condescending
@@ -106,9 +93,7 @@ Your commentary style:
 Remember: You're a chess buddy, not a stern coach!`;
 }
 
-/**
- * Build the user prompt with position details
- */
+ 
 function buildUserPrompt(request: AIChatRequest): string {
   const { fen, moveHistory, moveNumber, gameMode } = request;
   const pieces = parseFenToPieces(fen);
@@ -138,9 +123,7 @@ Black pieces: ${pieces.black.join(', ')}
 Provide a brief, friendly comment about the position. If you recognize any opening or defense, mention it with a fun fact. Keep it light and encouraging!`;
 }
 
-/**
- * Build complete messages array for AI API call
- */
+ 
 export function buildChatPrompt(request: AIChatRequest): { role: string; content: string }[] {
   return [
     { role: 'system', content: buildSystemPrompt() },
@@ -148,9 +131,7 @@ export function buildChatPrompt(request: AIChatRequest): { role: string; content
   ];
 }
 
-/**
- * Get the welcome message for new games
- */
+ 
 export function getWelcomeMessage(): string {
   const welcomeMessages = [
     "Do your moves, I am waiting to be your best checkmAIte! ♟️",
@@ -162,9 +143,7 @@ export function getWelcomeMessage(): string {
   return welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
 }
 
-/**
- * Get game phase for API request
- */
+ 
 export function getGamePhase(fen: string, moveCount: number): 'opening' | 'middlegame' | 'endgame' {
   return determineGamePhase(fen, moveCount);
 }

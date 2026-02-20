@@ -1,9 +1,4 @@
-/**
- * useAIChat Hook
- * 
- * Manages AI chat state and triggers commentary requests.
- * Used by both Analysis and Play modes for chess position commentary.
- */
+
 
 'use client';
 
@@ -11,42 +6,29 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import type { ChatMessage, AIChatRequest, AIChatResponse, ApiResponse } from '@/types';
 import { getWelcomeMessage, getGamePhase } from '@/lib/chess/promptBuilder';
 
-/** Hook configuration options */
+ 
 interface UseAIChatOptions {
-  /** Game mode: 'analysis' or 'vsBot' */
   gameMode: 'analysis' | 'vsBot';
-  /** Number of half-moves between AI commentary (default: 5) */
   triggerInterval?: number;
 }
 
-/** Hook return type */
+ 
 interface UseAIChatReturn {
-  /** Array of chat messages */
   messages: ChatMessage[];
-  /** Whether AI is currently generating a response */
   isLoading: boolean;
-  /** Error message if something went wrong */
   error: string | null;
-  /** Trigger AI commentary for the current position */
   triggerCommentary: (fen: string, moveHistory: string[]) => Promise<void>;
-  /** Reset chat to initial state with welcome message */
   resetChat: () => void;
-  /** Last move count that triggered commentary */
   lastTriggeredMoveCount: number;
-  /** Check if commentary should be triggered based on move count */
   shouldTrigger: (moveCount: number) => boolean;
 }
 
-/**
- * Generate a unique ID for chat messages
- */
+ 
 function generateMessageId(): string {
   return `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
-/**
- * Custom hook for AI chess commentary
- */
+ 
 export function useAIChat(options: UseAIChatOptions): UseAIChatReturn {
   const { gameMode, triggerInterval = 5 } = options;
   
@@ -58,10 +40,10 @@ export function useAIChat(options: UseAIChatOptions): UseAIChatReturn {
   const [lastTriggeredMoveCount, setLastTriggeredMoveCount] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
   
-  // Ref to prevent duplicate requests
+  
   const pendingRequest = useRef(false);
 
-  // Add welcome message on client mount to avoid hydration mismatch
+  
   useEffect(() => {
     if (!isInitialized) {
       setMessages([{
@@ -75,7 +57,7 @@ export function useAIChat(options: UseAIChatOptions): UseAIChatReturn {
     }
   }, [isInitialized]);
 
-  // Helper to create initial welcome message
+  
   const createWelcomeMessage = useCallback((): ChatMessage => ({
     id: generateMessageId(),
     role: 'assistant',
@@ -84,9 +66,7 @@ export function useAIChat(options: UseAIChatOptions): UseAIChatReturn {
     model: 'welcome',
   }), []);
 
-  /**
-   * Check if commentary should be triggered based on move count
-   */
+  
   const shouldTrigger = useCallback((moveCount: number): boolean => {
     // Trigger every `triggerInterval` moves, but not at 0
     if (moveCount === 0) return false;
@@ -95,9 +75,7 @@ export function useAIChat(options: UseAIChatOptions): UseAIChatReturn {
     return true;
   }, [triggerInterval, lastTriggeredMoveCount]);
 
-  /**
-   * Trigger AI commentary for the current position
-   */
+  
   const triggerCommentary = useCallback(async (
     fen: string,
     moveHistory: string[]
@@ -156,9 +134,7 @@ export function useAIChat(options: UseAIChatOptions): UseAIChatReturn {
     }
   }, [gameMode, shouldTrigger]);
 
-  /**
-   * Reset chat to initial state with welcome message
-   */
+  
   const resetChat = useCallback((): void => {
     setMessages([createWelcomeMessage()]);
     setError(null);

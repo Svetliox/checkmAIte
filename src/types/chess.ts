@@ -1,41 +1,32 @@
-/**
- * Chess-related TypeScript type definitions
- * These types support the chess analysis features of checkmAIte
- */
 
 import type { Square, PieceSymbol, Color } from 'chess.js';
 
-/** Represents a chess position in FEN notation */
 export type ChessPosition = string;
 
-/** Represents a chess move */
 export interface ChessMove {
   from: Square;
   to: Square;
   promotion?: PieceSymbol;
-  san?: string; // Standard Algebraic Notation (e.g., "e4", "Nf3")
-  lan?: string; // Long Algebraic Notation (e.g., "e2e4")
+  san?: string;
+  lan?: string;
 }
 
-/** Represents a piece on the board */
 export interface ChessPiece {
   type: PieceSymbol;
   color: Color;
   square: Square;
 }
 
-/** Analysis result from the chess engine */
 export interface AnalysisResult {
   bestMove: ChessMove | null;
-  evaluation: number; // Centipawn evaluation (+ for white advantage)
-  depth: number; // Search depth
-  pv: ChessMove[]; // Principal variation (best line)
-  mate?: number; // Moves to mate (+ for white mates, - for black mates)
-  nodes?: number; // Nodes searched
-  time?: number; // Time spent in milliseconds
+  evaluation: number;
+  depth: number;
+  pv: ChessMove[];
+  mate?: number;
+  nodes?: number;
+  time?: number;
 }
 
-/** Statistics for a single game */
 export interface GameStatistics {
   totalMoves: number;
   accuracy: {
@@ -52,7 +43,6 @@ export interface GameStatistics {
   };
 }
 
-/** Move classification based on engine analysis */
 export type MoveClassification =
   | 'best'
   | 'excellent'
@@ -62,7 +52,6 @@ export type MoveClassification =
   | 'blunder'
   | 'book';
 
-/** A move with its analysis */
 export interface AnalyzedMove {
   move: ChessMove;
   position: ChessPosition;
@@ -72,51 +61,44 @@ export interface AnalyzedMove {
   centipawnLoss: number;
 }
 
-/** Game history entry */
 export interface GameHistoryEntry {
   moveNumber: number;
   whiteMove?: AnalyzedMove;
   blackMove?: AnalyzedMove;
 }
 
-/** Board orientation */
 export type BoardOrientation = 'white' | 'black';
 
-/** Engine status */
 export type EngineStatus = 'idle' | 'loading' | 'ready' | 'analyzing' | 'error';
 
-/** Engine configuration */
 export interface EngineConfig {
   depth: number;
-  multiPv: number; // Number of principal variations to calculate
+  multiPv: number;
   threads?: number;
-  hashSize?: number; // Hash table size in MB
+  hashSize?: number;
 }
 
-/** Multi-PV line from engine analysis */
 export interface MultiPvLine {
-  rank: number; // 1, 2, 3 for multiPv
-  moves: string[]; // PV moves in UCI format (e.g., ["e2e4", "e7e5"])
-  sanMoves: string[]; // PV moves in SAN format (e.g., ["e4", "e5"])
-  score: number; // Centipawn score
-  mate?: number; // Moves to mate if applicable
+  rank: number;
+  moves: string[];
+  sanMoves: string[];
+  score: number;
+  mate?: number;
   depth: number;
 }
 
-/** Streaming analysis info from engine */
 export interface EngineInfo {
   depth: number;
   seldepth?: number;
-  score: number; // Centipawn evaluation
-  mate?: number; // Moves to mate
+  score: number;
+  mate?: number;
   nodes?: number;
-  nps?: number; // Nodes per second
-  time?: number; // Milliseconds
-  pv: string[]; // Principal variation in UCI format
-  multipv?: number; // Which PV line (1, 2, 3...)
+  nps?: number;
+  time?: number;
+  pv: string[];
+  multipv?: number;
 }
 
-/** Full game analysis result */
 export interface GameAnalysisResult {
   moves: MoveAnalysis[];
   accuracy: {
@@ -133,11 +115,10 @@ export interface GameAnalysisResult {
   };
 }
 
-/** Analysis for a single move */
 export interface MoveAnalysis {
   moveNumber: number;
   color: 'white' | 'black';
-  move: string; // SAN notation
+  move: string;
   fen: string;
   evaluation: number;
   bestMove: string;
@@ -145,34 +126,25 @@ export interface MoveAnalysis {
   centipawnLoss: number;
 }
 
-// ============================================
-// Play vs Bot Mode Types
-// ============================================
 
-/** Game mode - analysis or play against bot */
 export type GameMode = 'analysis' | 'vsBot';
 
-/** Player's chosen color */
 export type PlayerColor = 'white' | 'black';
 
-/** Bot difficulty level */
 export type BotDifficulty = 'easy' | 'medium' | 'hard';
 
-/** Difficulty settings mapping */
 export const BOT_DIFFICULTY_CONFIG: Record<BotDifficulty, { depth: number; label: string }> = {
   easy: { depth: 4, label: 'Easy' },
   medium: { depth: 8, label: 'Medium' },
   hard: { depth: 15, label: 'Hard' },
 };
 
-/** Game result */
 export type GameResult = 
   | { type: 'ongoing' }
   | { type: 'checkmate'; winner: PlayerColor }
   | { type: 'draw'; reason: 'stalemate' | 'insufficient' | 'threefold' | 'fifty-move' }
   | { type: 'resignation'; winner: PlayerColor };
 
-/** Play game state */
 export interface PlayGameState {
   playerColor: PlayerColor;
   difficulty: BotDifficulty;
@@ -182,23 +154,17 @@ export interface PlayGameState {
   showBestMoves: boolean;
 }
 
-// ============================================
-// AI Chat Types
-// ============================================
 
-/** Chat message role */
 export type ChatMessageRole = 'user' | 'assistant' | 'system';
 
-/** Individual chat message */
 export interface ChatMessage {
   id: string;
   role: ChatMessageRole;
   content: string;
   timestamp: Date;
-  model?: string; // Which AI model generated this (for assistant messages)
+  model?: string;
 }
 
-/** AI Chat state */
 export interface AIChatState {
   messages: ChatMessage[];
   isLoading: boolean;
@@ -206,7 +172,6 @@ export interface AIChatState {
   lastTriggeredMoveCount: number;
 }
 
-/** AI Chat API request body */
 export interface AIChatRequest {
   fen: string;
   moveHistory: string[];
@@ -215,7 +180,6 @@ export interface AIChatRequest {
   gameMode: 'analysis' | 'vsBot';
 }
 
-/** AI Chat API response */
 export interface AIChatResponse {
   message: string;
   model: string;

@@ -1,10 +1,3 @@
-/**
- * useStockfish Hook
- * 
- * A React hook for integrating Stockfish chess engine analysis
- * into React components with real-time streaming updates.
- */
-
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -21,36 +14,34 @@ import {
 } from '@/lib/chess/stockfish';
 
 export interface StockfishAnalysis {
-  evaluation: number; // Centipawn score
-  mate: number | null; // Moves to mate
-  depth: number; // Current search depth
-  targetDepth: number; // Target search depth
-  bestMove: string; // Best move in UCI format
-  bestMoveSan: string; // Best move in SAN format
-  topMoves: MultiPvLine[]; // Multi-PV lines
+  evaluation: number; 
+  mate: number | null; 
+  depth: number; 
+  targetDepth: number; 
+  bestMove: string; 
+  bestMoveSan: string; 
+  topMoves: MultiPvLine[]; 
   nodes: number;
   nps: number;
   time: number;
-  isWhiteTurn: boolean; // Whose turn it is
+  isWhiteTurn: boolean; 
 }
 
 export interface UseStockfishOptions {
-  autoAnalyze?: boolean; // Automatically analyze when FEN changes
-  depth?: number; // Analysis depth
-  multiPv?: number; // Number of principal variations
-  debounceMs?: number; // Debounce position changes
+  autoAnalyze?: boolean; 
+  depth?: number; 
+  multiPv?: number; 
+  debounceMs?: number; 
 }
 
 const DEFAULT_OPTIONS: UseStockfishOptions = {
   autoAnalyze: true,
-  depth: 12, // Lower depth for faster analysis
+  depth: 12, 
   multiPv: 3,
-  debounceMs: 200, // Faster response
+  debounceMs: 200, 
 };
 
-/**
- * Convert UCI move to SAN using a Chess.js instance
- */
+
 function uciToSan(fen: string, uciMove: string): string {
   try {
     const chess = new Chess(fen);
@@ -65,9 +56,7 @@ function uciToSan(fen: string, uciMove: string): string {
   }
 }
 
-/**
- * Convert array of UCI moves to SAN starting from a position
- */
+
 function uciLinesToSan(fen: string, uciMoves: string[]): string[] {
   const sanMoves: string[] = [];
   const chess = new Chess(fen);
@@ -103,7 +92,7 @@ export function useStockfish(options: UseStockfishOptions = {}) {
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
   const currentAnalysisFen = useRef<string | null>(null);
 
-  // Initialize engine on mount
+  
   useEffect(() => {
     let mounted = true;
 
@@ -134,9 +123,9 @@ export function useStockfish(options: UseStockfishOptions = {}) {
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Handle info callback
+  
   const handleInfo = useCallback((fen: string, info: EngineInfo) => {
-    // Ignore info if it's for a different position (stale callback)
+    
     if (currentAnalysisFen.current !== fen) {
       return;
     }
@@ -144,20 +133,20 @@ export function useStockfish(options: UseStockfishOptions = {}) {
     const chess = new Chess(fen);
     const isWhiteTurn = chess.turn() === 'w';
     
-    // Adjust evaluation for black's perspective
+    
     const adjustedScore = isWhiteTurn ? info.score : -info.score;
     const adjustedMate = info.mate ? (isWhiteTurn ? info.mate : -info.mate) : null;
     
-    // Get multi-PV lines and convert to SAN for the CURRENT position
+    
     const pvLines = getMultiPvLines().map(line => ({
       ...line,
       sanMoves: uciLinesToSan(fen, line.moves),
-      // Adjust score for perspective
+      
       score: isWhiteTurn ? line.score : -line.score,
       mate: line.mate ? (isWhiteTurn ? line.mate : -line.mate) : undefined,
     }));
 
-    // Get best move in SAN
+    
     const bestMoveUci = info.pv[0] || '';
     const bestMoveSan = bestMoveUci ? uciToSan(fen, bestMoveUci) : '';
 
@@ -176,9 +165,9 @@ export function useStockfish(options: UseStockfishOptions = {}) {
     });
   }, [opts.depth]);
 
-  // Handle best move callback
+  
   const handleBestMove = useCallback((fen: string, move: string) => {
-    // Ignore bestmove if it's for a different position (stale callback)
+    
     if (currentAnalysisFen.current !== fen) {
       return;
     }
@@ -194,25 +183,25 @@ export function useStockfish(options: UseStockfishOptions = {}) {
     setStatus('ready');
   }, []);
 
-  // Analyze a position
+  
   const analyze = useCallback((fen: string) => {
     if (!isEngineReady()) {
       console.warn('[useStockfish] Engine not ready');
       return;
     }
 
-    // Skip if same position is already being analyzed
+    
     if (currentAnalysisFen.current === fen) {
       return;
     }
 
-    // Stop any current analysis
+    
     stockfishStop();
     
     currentAnalysisFen.current = fen;
     setCurrentFen(fen);
     
-    // If this is the starting position, keep initial state and don't analyze
+    
     const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
     if (fen === STARTING_FEN) {
       setStatus('ready');
@@ -229,7 +218,7 @@ export function useStockfish(options: UseStockfishOptions = {}) {
         time: 0,
         isWhiteTurn: true,
       });
-      return; // Don't analyze starting position
+      return; 
     }
     
     setStatus('analyzing');
@@ -242,7 +231,7 @@ export function useStockfish(options: UseStockfishOptions = {}) {
     );
   }, [opts.depth, handleInfo, handleBestMove]);
 
-  // Debounced analyze
+  
   const analyzeDebounced = useCallback((fen: string) => {
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current);
@@ -253,7 +242,7 @@ export function useStockfish(options: UseStockfishOptions = {}) {
     }, opts.debounceMs);
   }, [analyze, opts.debounceMs]);
 
-  // Stop analysis
+  
   const stop = useCallback(() => {
     stockfishStop();
     currentAnalysisFen.current = null;
@@ -262,15 +251,15 @@ export function useStockfish(options: UseStockfishOptions = {}) {
     }
   }, [status]);
 
-  // Update configuration
+  
   const updateConfig = useCallback((config: Partial<EngineConfig>) => {
     setStockfishConfig(config);
   }, []);
 
-  // Auto-analyze when FEN changes
+
   const setFen = useCallback((fen: string) => {
     if (opts.autoAnalyze && status === 'ready' || status === 'analyzing') {
-      // Immediately show initial state for starting position
+
       const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
       if (fen === STARTING_FEN) {
         setAnalysis({
@@ -303,5 +292,5 @@ export function useStockfish(options: UseStockfishOptions = {}) {
     setFen,
     stop,
     updateConfig,
-  };
+	};
 }

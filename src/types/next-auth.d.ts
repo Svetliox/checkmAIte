@@ -1,8 +1,3 @@
-// =============================================================================
-// checkmAIte - NextAuth.js Type Augmentation
-// =============================================================================
-// Extends NextAuth types to include custom user properties
-// =============================================================================
 
 import 'next-auth';
 import 'next-auth/jwt';
