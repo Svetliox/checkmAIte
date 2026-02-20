@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { ApiResponse, AIChatRequest, AIChatResponse } from '@/types';
 import { buildChatPrompt } from '@/lib/chess/promptBuilder';
+import { auth } from '@/lib/auth';
+import { getUserApiKey } from '@/lib/db';
 
 /**
  * AI Chat API Route Handler
@@ -11,6 +13,10 @@ import { buildChatPrompt } from '@/lib/chess/promptBuilder';
  * Uses Groq API with alternating models for variety:
  * - llama-3.1-8b-instant (fast, good quality)
  * - gemma2-9b-it (alternative perspective)
+ * 
+ * API Key Priority:
+ * 1. User's stored API key (from account settings)
+ * 2. System GROQ_API_KEY environment variable (fallback)
  * 
  * Request body:
  * - fen: string (FEN notation of the position)
@@ -58,16 +64,33 @@ export async function POST(
       );
     }
 
-    // Check for API key
-    const apiKey = process.env.GROQ_API_KEY;
+    // Check for API key - first try user's key, then system key
+    let apiKey: string | null = null;
+    
+    // Try to get user's API key
+    const session = await auth();
+    if (session?.user?.id) {
+      try {
+        apiKey = await getUserApiKey(session.user.id, 'groq');
+      } catch (err) {
+        console.warn('[API] Failed to get user API key:', err);
+      }
+    }
+
+    // Fall back to system API key
     if (!apiKey) {
-      console.warn('[API] GROQ_API_KEY not configured, using fallback response');
+      apiKey = process.env.GROQ_API_KEY || null;
+    }
+
+    // If no API key available, return special message
+    if (!apiKey) {
+      console.warn('[API] No API key available for chat');
       return NextResponse.json({
         success: true,
         data: {
           success: true,
-          message: getFallbackMessage(body.moveHistory.length),
-          model: 'fallback',
+          message: 'API_KEY_REQUIRED',
+          model: 'none',
         },
         timestamp: new Date().toISOString(),
       });
