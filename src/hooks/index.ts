@@ -3,3 +3,4 @@
  */
 
 export * from './useStockfish';
+export * from './useAIChat';

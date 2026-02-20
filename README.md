@@ -5,8 +5,10 @@ AI-powered chess analysis platform built with Next.js 16, TypeScript, and Tailwi
 ## Features
 
 - 🎯 **Real-time Analysis** - Get instant feedback on every move with Stockfish-powered analysis
+- 🤖 **AI Chess Companion** - Get friendly chess commentary and insights every 5 moves
 - 📊 **Dynamic Statistics** - Track accuracy, identify patterns, and monitor improvement
-- ♔ **Play Both Sides** - Explore variations as white or black
+- ♚ **Play Both Sides** - Explore variations as white or black
+- 👾 **Play vs Bot** - Challenge Stockfish at different difficulty levels
 - 📚 **Learn & Improve** - Understand mistakes with detailed explanations
 
 ## Tech Stack
@@ -42,11 +44,15 @@ Open [http://localhost:3000](http://localhost:3000) to see the app.
 
 ### Environment Variables
 
-Copy `.env.local.example` to `.env.local` and configure:
+Copy `.env.example` to `.env.local` and configure:
 
 ```bash
-cp .env.local.example .env.local
+cp .env.example .env.local
 ```
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `GROQ_API_KEY` | No | Groq API key for AI chat. Get free at [console.groq.com](https://console.groq.com/keys) |
 
 ## Project Structure
 
@@ -129,11 +135,40 @@ Analyze a chess position.
 }
 ```
 
+### POST /api/chat
+
+Get AI chess commentary for a position.
+
+**Request:**
+```json
+{
+  "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+  "moveHistory": ["e4", "e5", "Nf3", "Nc6", "Bb5"],
+  "moveNumber": 3,
+  "gameMode": "vsBot"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "message": "Ah, the Ruy Lopez! One of the oldest and most respected openings...",
+    "model": "llama-3.1-8b-instant",
+    "success": true
+  },
+  "timestamp": "2026-02-20T12:00:00.000Z"
+}
+```
+
 ## Roadmap
 
 - [x] Project setup and structure
 - [x] Modern homepage design
 - [x] Interactive chess board
+- [x] Play vs Bot mode
+- [x] AI chess companion (chat)
 - [ ] Stockfish WASM integration
 - [ ] Database integration
 - [ ] User authentication

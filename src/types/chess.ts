@@ -181,3 +181,44 @@ export interface PlayGameState {
   gameResult: GameResult;
   showBestMoves: boolean;
 }
+
+// ============================================
+// AI Chat Types
+// ============================================
+
+/** Chat message role */
+export type ChatMessageRole = 'user' | 'assistant' | 'system';
+
+/** Individual chat message */
+export interface ChatMessage {
+  id: string;
+  role: ChatMessageRole;
+  content: string;
+  timestamp: Date;
+  model?: string; // Which AI model generated this (for assistant messages)
+}
+
+/** AI Chat state */
+export interface AIChatState {
+  messages: ChatMessage[];
+  isLoading: boolean;
+  error: string | null;
+  lastTriggeredMoveCount: number;
+}
+
+/** AI Chat API request body */
+export interface AIChatRequest {
+  fen: string;
+  moveHistory: string[];
+  moveNumber: number;
+  gamePhase?: 'opening' | 'middlegame' | 'endgame';
+  gameMode: 'analysis' | 'vsBot';
+}
+
+/** AI Chat API response */
+export interface AIChatResponse {
+  message: string;
+  model: string;
+  success: boolean;
+  error?: string;
+}

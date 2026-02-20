@@ -8,6 +8,7 @@
 'use client';
 
 import { Container, Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
+import { AIChatPanel } from '@/components/chess';
 import { AnalysisBoard } from './AnalysisBoard';
 import { AnalysisProvider, useAnalysis } from './AnalysisContext';
 
@@ -34,71 +35,67 @@ function AnalysisLayout() {
     whiteAccuracy, 
     blackAccuracy,
     moveHistory,
+    chatMessages,
+    isChatLoading,
+    chatError,
   } = useAnalysis();
 
   return (
-    <div className="py-8">
-      <Container size="xl">
-        {/* Page header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">Analysis Board</h1>
-          <p className="mt-2 text-foreground/70">
-            Play moves and get real-time AI analysis
-          </p>
-        </div>
-
-        {/* Error display */}
-        {error && (
-          <div className="mb-6 p-4 rounded-lg bg-accent-danger/10 border border-accent-danger text-accent-danger">
-            Engine Error: {error}
-          </div>
-        )}
-
-        {/* Main content grid */}
-        <div className="grid lg:grid-cols-[1fr_350px] gap-6">
-          {/* Chess board and controls */}
-          <div>
-            <Card variant="bordered" padding="lg">
-              <AnalysisBoard />
-            </Card>
+      <div className="py-8">
+        <Container size="2xl">
+          {/* Page header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold">Analysis Board</h1>
+            <p className="mt-2 text-foreground/70">
+              Play moves and get real-time AI analysis
+            </p>
           </div>
 
-          {/* Side panels */}
-          <div className="space-y-6">
-            {/* Evaluation panel */}
-            <EvaluationPanel 
-              status={status}
-              analysis={analysis}
-            />
+          {/* Error display */}
+          {error && (
+            <div className="mb-6 p-4 rounded-lg bg-accent-danger/10 border border-accent-danger text-accent-danger">
+              Engine Error: {error}
+            </div>
+          )}
 
-            {/* Statistics panel */}
-            <StatisticsPanel 
-              statistics={statistics}
-              whiteAccuracy={whiteAccuracy}
-              blackAccuracy={blackAccuracy}
-              totalMoves={moveHistory.length}
-            />
+          {/* Main content grid - 3 columns: Chat | Board | Panels */}
+          <div className="grid lg:grid-cols-[280px_1fr_350px] gap-6">
+            {/* Left column: AI Chat */}
+            <div className="hidden lg:block">
+              <AIChatPanel
+                messages={chatMessages}
+                isLoading={isChatLoading}
+                error={chatError}
+                className="h-[600px]"
+              />
+            </div>
 
-            {/* Coming soon features */}
-            <Card variant="bordered" className="bg-gradient-to-br from-accent-primary/5 to-accent-secondary/5">
-              <CardContent>
-                <div className="flex items-center gap-3">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-accent-primary/20 flex items-center justify-center">
-                    <SparklesIcon className="w-5 h-5 text-accent-primary" />
-                  </div>
-                  <div>
-                    <div className="font-medium">AI Coach Coming Soon</div>
-                    <div className="text-sm text-foreground/60">
-                      Get personalized improvement tips
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Center column: Chess board */}
+            <div className="flex justify-center">
+              <Card variant="bordered" padding="lg" className="flex-shrink-0">
+                <AnalysisBoard />
+              </Card>
+            </div>
+
+            {/* Right column: Evaluation and Statistics panels */}
+            <div className="space-y-6">
+              {/* Evaluation panel */}
+              <EvaluationPanel 
+                status={status}
+                analysis={analysis}
+              />
+
+              {/* Statistics panel */}
+              <StatisticsPanel 
+                statistics={statistics}
+                whiteAccuracy={whiteAccuracy}
+                blackAccuracy={blackAccuracy}
+                totalMoves={moveHistory.length}
+              />
+            </div>
           </div>
-        </div>
-      </Container>
-    </div>
+        </Container>
+      </div>
   );
 }
 

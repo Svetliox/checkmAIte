@@ -21,6 +21,7 @@ import {
   type PlayerColor, 
   type BotDifficulty, 
   type GameResult,
+  type ChatMessage,
   BOT_DIFFICULTY_CONFIG,
   type MultiPvLine,
   type EngineInfo,
@@ -35,6 +36,7 @@ import {
   isEngineReady,
 } from '@/lib/chess/stockfish';
 import { getRandomOpeningMove, isStartingPosition } from '@/lib/chess/openings';
+import { useAIChat } from '@/hooks';
 
 // ============================================
 // Types
@@ -67,6 +69,11 @@ interface PlayContextValue {
   // Best moves visibility
   showBestMoves: boolean;
   toggleBestMoves: () => void;
+  
+  // AI Chat state
+  chatMessages: ChatMessage[];
+  isChatLoading: boolean;
+  chatError: string | null;
   
   // Actions
   setupGame: (color: PlayerColor, difficulty: BotDifficulty) => void;
@@ -117,6 +124,16 @@ export function PlayProvider({ children }: PlayProviderProps) {
   // Engine status
   const [engineStatus, setEngineStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [engineError, setEngineError] = useState<string | null>(null);
+  
+  // AI Chat integration
+  const {
+    messages: chatMessages,
+    isLoading: isChatLoading,
+    error: chatError,
+    triggerCommentary,
+    resetChat,
+    shouldTrigger,
+  } = useAIChat({ gameMode: 'vsBot' });
   
   // Refs to track latest state in callbacks
   const isProcessingBotMove = useRef(false);
@@ -408,8 +425,19 @@ export function PlayProvider({ children }: PlayProviderProps) {
     isProcessingBotMove.current = false;
     pendingBotMove.current = false;
     
+    // Reset AI chat
+    resetChat();
+    
     setPhase('playing');
-  }, []);
+  }, [resetChat]);
+
+  // Trigger AI commentary every 5 moves
+  useEffect(() => {
+    // Only trigger during active gameplay
+    if (phase === 'playing' && gameResult.type === 'ongoing' && shouldTrigger(moveHistory.length)) {
+      triggerCommentary(fen, moveHistory);
+    }
+  }, [moveHistory.length, fen, moveHistory, shouldTrigger, triggerCommentary, phase, gameResult.type]);
 
   const makePlayerMove = useCallback((from: string, to: string, promotion?: string): boolean => {
     if (!isPlayerTurn || isBotThinking || gameResult.type !== 'ongoing') {
@@ -445,8 +473,9 @@ export function PlayProvider({ children }: PlayProviderProps) {
   const resetGame = useCallback(() => {
     // Restart with same settings
     stopAnalysis();
+    resetChat();
     setupGame(playerColor, difficulty);
-  }, [playerColor, difficulty, setupGame]);
+  }, [playerColor, difficulty, setupGame, resetChat]);
 
   const backToSetup = useCallback(() => {
     // Stop all analysis
@@ -474,9 +503,12 @@ export function PlayProvider({ children }: PlayProviderProps) {
     isProcessingBotMove.current = false;
     pendingBotMove.current = false;
     
+    // Reset AI chat
+    resetChat();
+    
     // Go to setup phase
     setPhase('setup');
-  }, []);
+  }, [resetChat]);
 
   const toggleBestMoves = useCallback(() => {
     setShowBestMoves(prev => !prev);
@@ -501,6 +533,9 @@ export function PlayProvider({ children }: PlayProviderProps) {
     depth,
     showBestMoves,
     toggleBestMoves,
+    chatMessages,
+    isChatLoading,
+    chatError,
     setupGame,
     makePlayerMove,
     resetGame,

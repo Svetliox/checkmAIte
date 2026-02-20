@@ -6,9 +6,9 @@
 
 'use client';
 
-import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react';
-import { useStockfish, type StockfishAnalysis } from '@/hooks';
-import type { EngineStatus, MoveClassification } from '@/types';
+import { createContext, useContext, useState, useCallback, useMemo, useEffect, type ReactNode } from 'react';
+import { useStockfish, type StockfishAnalysis, useAIChat } from '@/hooks';
+import type { EngineStatus, MoveClassification, ChatMessage } from '@/types';
 import { estimateAccuracy } from '@/lib/chess/gameAnalysis';
 
 // Move statistics tracked during play
@@ -50,6 +50,11 @@ interface AnalysisContextValue {
   whiteAccuracy: number;
   blackAccuracy: number;
   
+  // AI Chat state
+  chatMessages: ChatMessage[];
+  isChatLoading: boolean;
+  chatError: string | null;
+  
   // Actions
   setFen: (fen: string) => void;
   addMove: (san: string, evaluation: number, wasWhite: boolean) => void;
@@ -79,6 +84,16 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
     multiPv: 3,
     debounceMs: 200,
   });
+
+  // AI Chat integration
+  const {
+    messages: chatMessages,
+    isLoading: isChatLoading,
+    error: chatError,
+    triggerCommentary,
+    resetChat,
+    shouldTrigger,
+  } = useAIChat({ gameMode: 'analysis' });
 
   const [currentFen, setCurrentFen] = useState(STARTING_FEN);
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
@@ -191,7 +206,15 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
     });
     setHistoryStack([]);
     stockfish.setFen(STARTING_FEN);
-  }, [stockfish]);
+    resetChat();
+  }, [stockfish, resetChat]);
+
+  // Trigger AI commentary every 5 moves
+  useEffect(() => {
+    if (shouldTrigger(moveHistory.length)) {
+      triggerCommentary(currentFen, moveHistory);
+    }
+  }, [moveHistory.length, currentFen, moveHistory, shouldTrigger, triggerCommentary]);
 
   // Calculate accuracies
   const whiteAccuracy = useMemo(() => 
@@ -215,6 +238,9 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
     statistics,
     whiteAccuracy,
     blackAccuracy,
+    chatMessages,
+    isChatLoading,
+    chatError,
     setFen: handleSetFen,
     addMove,
     undoLastMove,

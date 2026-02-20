@@ -6,13 +6,14 @@
  * - Chess board with controls
  * - Always-visible evaluation bar
  * - Toggleable best moves panel
+ * - AI chat companion
  * - Game result display
  */
 
 'use client';
 
 import { Container, Card, CardContent, Button } from '@/components/ui';
-import { EvaluationBar } from '@/components/chess';
+import { EvaluationBar, AIChatPanel } from '@/components/chess';
 import { PlayProvider, usePlay } from './PlayContext';
 import { GameSetup } from './GameSetup';
 import { PlayBoard } from './PlayBoard';
@@ -52,6 +53,9 @@ function PlayLayout() {
     resetGame,
     backToSetup,
     moveHistory,
+    chatMessages,
+    isChatLoading,
+    chatError,
   } = usePlay();
 
   // Setup phase - show game setup screen
@@ -72,7 +76,7 @@ function PlayLayout() {
   // Playing or ended phase - show game UI
   return (
     <div className="py-8">
-      <Container size="xl">
+      <Container size="2xl">
         {/* Page header */}
         <div className="mb-6">
           <div className="flex items-center justify-between">
@@ -88,9 +92,19 @@ function PlayLayout() {
           </div>
         </div>
 
-        {/* Main game layout */}
-        <div className="grid lg:grid-cols-[1fr_300px] gap-6">
-          {/* Left column: Evaluation bar + Board */}
+        {/* Main game layout - 3 columns: Chat | Board | Controls */}
+        <div className="grid lg:grid-cols-[280px_1fr_300px] gap-6">
+          {/* Left column: AI Chat */}
+          <div className="hidden lg:block">
+            <AIChatPanel
+              messages={chatMessages}
+              isLoading={isChatLoading}
+              error={chatError}
+              className="h-[580px]"
+            />
+          </div>
+
+          {/* Center column: Evaluation bar + Board */}
           <div className="space-y-4">
             {/* Evaluation bar - ALWAYS VISIBLE */}
             <Card variant="bordered">
