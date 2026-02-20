@@ -186,52 +186,27 @@ export async function initStockfish(config?: Partial<EngineConfig>): Promise<voi
       // Load Stockfish worker (files copied from node_modules during postinstall)
       worker = new Worker('/stockfish/stockfish.js');
       
-      // Message handler during initialization
-      const initHandler = (event: MessageEvent) => {
-        const line = typeof event.data === 'string' ? event.data : event.data?.toString();
-        
-        if (!line) return;
-        
-        // Handle normal UCI messages
-        handleMessage(event);
-      };
-      
-      worker.onmessage = initHandler;
-      worker.onerror = (e) => {
-        console.error('[Stockfish] Worker error:', e);
-        reject(new Error('Failed to load Stockfish worker: ' + (e.message || 'Unknown error')));
-      };
-
-      // Send UCI init command - the worker will respond with "uciok"
-      // Give the worker a moment to initialize before sending commands
-      setTimeout(() => {
-        worker?.postMessage('uci');
-      }, 100);
-
       // Set a timeout for initialization
       const timeout = setTimeout(() => {
         reject(new Error('Stockfish initialization timeout'));
       }, 30000);
 
-      // Poll for ready state
-      const readyCheck = setInterval(() => {
-        // Send isready command
-        if (!isReady) {
-          worker?.postMessage('isready');
-        }
+      // Event-driven initialization handler - no polling needed
+      const initHandler = (event: MessageEvent) => {
+        const line = typeof event.data === 'string' ? event.data : event.data?.toString();
         
-        if (isReady) {
-          clearInterval(readyCheck);
+        if (!line) return;
+        
+        // When we receive 'readyok', engine is fully initialized
+        if (line === 'readyok') {
+          isReady = true;
           clearTimeout(timeout);
           
           // Switch to normal message handler
           if (worker) {
             worker.onmessage = handleMessage;
-            // Keep a permanent error handler
             worker.onerror = (e) => {
               console.error('[Stockfish] Worker error:', e);
-              // Don't crash the app, just log the error
-              // The game can continue if possible
             };
           }
           
@@ -241,8 +216,29 @@ export async function initStockfish(config?: Partial<EngineConfig>): Promise<voi
           
           console.log('[Stockfish] Engine ready');
           resolve();
+          return;
         }
-      }, 200);
+        
+        // When we receive 'uciok', engine UCI mode is active, now check if ready
+        if (line === 'uciok') {
+          worker?.postMessage('isready');
+          return;
+        }
+        
+        // Handle other UCI messages during init
+        handleMessage(event);
+      };
+      
+      worker.onmessage = initHandler;
+      worker.onerror = (e) => {
+        console.error('[Stockfish] Worker error:', e);
+        clearTimeout(timeout);
+        reject(new Error('Failed to load Stockfish worker: ' + (e.message || 'Unknown error')));
+      };
+
+      // Send UCI init command immediately - no delay needed
+      // Web Worker is ready to receive messages right after construction
+      worker.postMessage('uci');
     } catch (error) {
       reject(error);
     }

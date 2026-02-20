@@ -1,5 +1,5 @@
 // =============================================================================
-// checkmAIte - Route Protection Middleware
+// checkmAIte - Route Protection Proxy
 // =============================================================================
 // Protects authenticated routes and redirects unauthenticated users to login
 // =============================================================================
@@ -40,11 +40,3 @@ export default auth((req) => {
 
   return NextResponse.next();
 });
-
-// Configure which paths the middleware should run on
-export const config = {
-  matcher: [
-    // Match all routes except static files, api routes, and _next
-    '/((?!_next|api|public|stockfish|favicon.ico|.*\\.).*)',
-  ],
-};

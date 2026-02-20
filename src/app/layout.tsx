@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || 'https://checkmaite.app'
+  ),
   title: {
     default: "checkmAIte - AI-Powered Chess Analysis",
     template: "%s | checkmAIte",
@@ -70,6 +73,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Preload Stockfish WASM and JS for faster engine initialization */}
+        <link
+          rel="preload"
+          href="/stockfish/stockfish.wasm"
+          as="fetch"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/stockfish/stockfish.js"
+          as="script"
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >

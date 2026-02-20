@@ -198,17 +198,15 @@ function TypingIndicator() {
 // ============================================
 
 function ClientTimestamp({ date }: { date: Date }) {
-  const [timeString, setTimeString] = useState<string>('');
-
-  useEffect(() => {
-    // Only format time on client to avoid hydration mismatch
-    setTimeString(
-      new Date(date).toLocaleTimeString([], { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      })
-    );
-  }, [date]);
+  // Use lazy initializer to compute time only on client (returns empty on SSR)
+  const [timeString] = useState<string>(() => {
+    // Check if we're on the client
+    if (typeof window === 'undefined') return '';
+    return new Date(date).toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+  });
 
   // Return empty during SSR, formatted time on client
   return <>{timeString}</>;

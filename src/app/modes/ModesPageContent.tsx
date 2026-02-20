@@ -24,10 +24,9 @@ export function ModesPageContent() {
   useEffect(() => {
     console.log('[ModesPage] useEffect running - isEngineReady():', isEngineReady());
     
-    // Skip if already ready
+    // Skip if already ready - initial state already set via lazy initializer
     if (isEngineReady()) {
       console.log('[ModesPage] Engine already ready, skipping init');
-      setEngineStatus('ready');
       return;
     }
 
