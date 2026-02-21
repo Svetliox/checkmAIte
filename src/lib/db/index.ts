@@ -133,6 +133,71 @@ export async function connectDatabase(): Promise<void> {
   isConnected = true;
 }
 
+export async function saveUserGame(params: {
+  userId: string;
+  name?: string;
+  fen: string;
+  turn: string;
+  moveHistory: string[];
+  statistics: object;
+  evaluationScore: number;
+  gameType?: 'analysis' | 'vsBot';
+  evaluation?: number | null;
+  topMoves?: object[] | null;
+  difficulty?: string | null;
+  playerColor?: string | null;
+}): Promise<void> {
+  // Auto-increment name if not provided
+  let gameName = params.name;
+  if (!gameName) {
+    const count = await prisma.savedGame.count({ where: { userId: params.userId } });
+    gameName = `Saved game #${count + 1}`;
+  }
+  await prisma.savedGame.create({
+    data: {
+      userId: params.userId,
+      name: gameName,
+      fen: params.fen,
+      turn: params.turn,
+      moveHistory: JSON.stringify(params.moveHistory),
+      statistics: JSON.stringify(params.statistics),
+      evaluationScore: params.evaluationScore,
+      gameType: params.gameType || 'analysis',
+      evaluation: params.evaluation ?? null,
+      topMoves: params.topMoves ? JSON.stringify(params.topMoves) : null,
+      difficulty: params.difficulty ?? null,
+      playerColor: params.playerColor ?? null,
+    }
+  });
+}
+
+export async function getUserSavedGames(userId: string, order: 'asc' | 'desc' = 'desc') {
+  return prisma.savedGame.findMany({
+    where: { userId },
+    orderBy: { createdAt: order },
+  });
+}
+
+export async function getSavedGameById(userId: string, gameId: string) {
+  return prisma.savedGame.findFirst({
+    where: { id: gameId, userId },
+  });
+}
+
+export async function deleteSavedGame(userId: string, gameId: string): Promise<boolean> {
+  const game = await prisma.savedGame.findFirst({
+    where: { id: gameId, userId },
+  });
+  if (!game) return false;
+  await prisma.savedGame.delete({ where: { id: gameId } });
+  return true;
+}
+
+export async function deleteAllSavedGames(userId: string): Promise<number> {
+  const result = await prisma.savedGame.deleteMany({ where: { userId } });
+  return result.count;
+}
+
 export function isDatabaseConnected(): boolean {
   return isConnected;
 }

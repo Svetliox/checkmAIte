@@ -6,6 +6,11 @@ export const metadata: Metadata = {
   description: 'Challenge the Stockfish chess engine. Choose your color, select difficulty, and test your skills!',
 };
 
-export default function PlayPage() {
-  return <PlayPageContent />;
+interface PlayPageProps {
+  searchParams: Promise<{ loadGame?: string }>;
+}
+
+export default async function PlayPage({ searchParams }: PlayPageProps) {
+  const params = await searchParams;
+  return <PlayPageContent loadGameId={params.loadGame} />;
 }

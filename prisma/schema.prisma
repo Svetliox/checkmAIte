@@ -21,6 +21,7 @@ model User {
   accounts Account[]
   sessions Session[]
   apiKeys  ApiKey[]
+  savedGames SavedGame[]
 }
 
 model Account {
@@ -57,6 +58,25 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model SavedGame {
+  id             String   @id @default(cuid())
+  userId         String
+  name           String
+  createdAt      DateTime @default(now())
+  fen            String
+  turn           String
+  moveHistory    String   // JSON stringified array
+  statistics     String   // JSON stringified object
+  evaluationScore Float
+  gameType       String   @default("analysis") // 'analysis' | 'vsBot'
+  evaluation     Float?   // Engine evaluation at save time (nullable)
+  topMoves       String?  // JSON stringified MultiPvLine[] (nullable)
+  difficulty     String?  // For analysis: depth number, for vsBot: 'easy'|'medium'|'hard'
+  playerColor    String?  // 'white' | 'black' - which side user was playing (vsBot)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 

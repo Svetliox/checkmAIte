@@ -4,9 +4,58 @@ import type { EngineConfig, EngineInfo, MultiPvLine } from '@/types';
 let worker: Worker | null = null;
 let isReady = false;
 let isAnalyzingFlag = false;
+let isInitializing = false; 
 let messageCallback: ((info: EngineInfo) => void) | null = null;
 let bestMoveCallback: ((move: string, ponder?: string) => void) | null = null;
 const multiPvLines: Map<number, MultiPvLine> = new Map();
+
+// Track page visibility to avoid issues when inactive
+let isPageVisible = typeof document !== 'undefined' ? !document.hidden : true;
+
+// Listen for visibility changes
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    const wasHidden = !isPageVisible;
+    isPageVisible = !document.hidden;
+    
+    // When page becomes visible again, check engine health
+    if (isPageVisible && wasHidden && worker && isReady) {
+      checkEngineHealth();
+    }
+  });
+}
+
+// Check if engine is still responsive
+async function checkEngineHealth(): Promise<boolean> {
+  if (!worker || !isReady) return false;
+  
+  const currentWorker = worker;
+  
+  return new Promise((resolve) => {
+    const timeout = setTimeout(() => {
+      console.warn('[Stockfish] Engine health check failed, will reinitialize on next use');
+      cleanupWorker();
+      resolve(false);
+    }, 5000);
+    
+    const originalHandler = currentWorker.onmessage;
+    currentWorker.onmessage = (event) => {
+      const line = typeof event.data === 'string' ? event.data : event.data?.toString();
+      if (line === 'readyok') {
+        clearTimeout(timeout);
+        currentWorker.onmessage = originalHandler;
+        resolve(true);
+        return;
+      }
+      // Forward other messages to original handler
+      if (originalHandler) {
+        originalHandler.call(currentWorker, event);
+      }
+    };
+    
+    currentWorker.postMessage('isready');
+  });
+}
 
 const DEFAULT_CONFIG: EngineConfig = {
   depth: 20,
@@ -114,6 +163,21 @@ function handleMessage(event: MessageEvent): void {
   }
 }
 
+function cleanupWorker(): void {
+  if (worker) {
+    try {
+      worker.terminate();
+    } catch {
+      // Ignore termination errors
+    }
+    worker = null;
+  }
+  isReady = false;
+  isInitializing = false;
+  isAnalyzingFlag = false;
+  multiPvLines.clear();
+}
+
 export async function initStockfish(config?: Partial<EngineConfig>): Promise<void> {
   // If worker exists and is ready, return immediately
   if (worker && isReady) {
@@ -121,36 +185,73 @@ export async function initStockfish(config?: Partial<EngineConfig>): Promise<voi
     return;
   }
   
-  // If worker exists but not ready yet, wait for it
-  if (worker && !isReady) {
+  // If worker exists but not ready yet, wait for it (but with recovery)
+  if (worker && !isReady && isInitializing) {
     console.log('[Stockfish] Already initializing, waiting for ready...');
     return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        reject(new Error('Stockfish initialization timeout (waiting)'));
-      }, 30000);
+      let elapsed = 0;
+      const checkInterval = 100;
+      const maxWait = 30000; // 30 seconds max wait for existing init
       
       const readyCheck = setInterval(() => {
+        elapsed += checkInterval;
+        
         if (isReady) {
           clearInterval(readyCheck);
-          clearTimeout(timeout);
           console.log('[Stockfish] Engine ready (waited)');
           resolve();
+          return;
         }
-      }, 100);
+        
+        // If we've waited too long, clean up and try fresh init
+        if (elapsed >= maxWait) {
+          clearInterval(readyCheck);
+          console.log('[Stockfish] Waited too long, restarting initialization...');
+          cleanupWorker();
+          // Try fresh init
+          initStockfish(config).then(resolve).catch(reject);
+        }
+      }, checkInterval);
     });
+  }
+  
+  // If worker exists but init flag is false, it's a stuck state - clean up
+  if (worker && !isReady && !isInitializing) {
+    console.log('[Stockfish] Found stuck worker, cleaning up...');
+    cleanupWorker();
   }
 
   if (config) {
     currentConfig = { ...currentConfig, ...config };
   }
 
+  isInitializing = true;
+
   return new Promise((resolve, reject) => {
     try {
+      // Don't initialize if page is hidden - defer until visible
+      if (!isPageVisible) {
+        console.log('[Stockfish] Page hidden, deferring initialization...');
+        isInitializing = false;
+        
+        const visibilityHandler = () => {
+          if (!document.hidden) {
+            document.removeEventListener('visibilitychange', visibilityHandler);
+            initStockfish(config).then(resolve).catch(reject);
+          }
+        };
+        document.addEventListener('visibilitychange', visibilityHandler);
+        return;
+      }
+      
       worker = new Worker('/stockfish/stockfish.js');
       
       const timeout = setTimeout(() => {
-        reject(new Error('Stockfish initialization timeout'));
-      }, 30000);
+        console.warn('[Stockfish] Initialization timeout, cleaning up (will retry on next use)...');
+        cleanupWorker();
+        // Resolve instead of reject - next call will try fresh init
+        resolve();
+      }, 60000);
 
       const initHandler = (event: MessageEvent) => {
         const line = typeof event.data === 'string' ? event.data : event.data?.toString();
@@ -160,6 +261,7 @@ export async function initStockfish(config?: Partial<EngineConfig>): Promise<voi
         // When we receive 'readyok', engine is fully initialized
         if (line === 'readyok') {
           isReady = true;
+          isInitializing = false;
           clearTimeout(timeout);
           
           // Switch to normal message handler
@@ -193,11 +295,13 @@ export async function initStockfish(config?: Partial<EngineConfig>): Promise<voi
       worker.onerror = (e) => {
         console.error('[Stockfish] Worker error:', e);
         clearTimeout(timeout);
+        cleanupWorker();
         reject(new Error('Failed to load Stockfish worker: ' + (e.message || 'Unknown error')));
       };
 
       worker.postMessage('uci');
     } catch (error) {
+      cleanupWorker();
       reject(error);
     }
   });

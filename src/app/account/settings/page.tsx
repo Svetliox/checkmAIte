@@ -6,6 +6,11 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { Container, Button, Card } from '@/components/ui';
 
+const ANALYSIS_DEPTH_KEY = 'checkmaite_analysis_depth';
+const DEFAULT_ANALYSIS_DEPTH = 10;
+const MIN_DEPTH = 5;
+const MAX_DEPTH = 25;
+
 export default function SettingsPage() {
   const { data: session } = useSession();
 
@@ -14,6 +19,10 @@ export default function SettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Analysis depth settings
+  const [analysisDepth, setAnalysisDepth] = useState(DEFAULT_ANALYSIS_DEPTH);
+  const [depthSaved, setDepthSaved] = useState(false);
 
   useEffect(() => {
     async function loadApiKeyStatus() {
@@ -30,7 +39,24 @@ export default function SettingsPage() {
       }
     }
     loadApiKeyStatus();
+    
+    // Load analysis depth from localStorage
+    const savedDepth = localStorage.getItem(ANALYSIS_DEPTH_KEY);
+    if (savedDepth) {
+      const parsed = parseInt(savedDepth, 10);
+      if (!isNaN(parsed) && parsed >= MIN_DEPTH && parsed <= MAX_DEPTH) {
+        setAnalysisDepth(parsed);
+      }
+    }
   }, []);
+
+  const handleDepthChange = (value: number) => {
+    const clamped = Math.max(MIN_DEPTH, Math.min(MAX_DEPTH, value));
+    setAnalysisDepth(clamped);
+    localStorage.setItem(ANALYSIS_DEPTH_KEY, clamped.toString());
+    setDepthSaved(true);
+    setTimeout(() => setDepthSaved(false), 2000);
+  };
 
   const handleSaveApiKey = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -220,6 +246,97 @@ export default function SettingsPage() {
               </div>
             )}
           </form>
+        </Card>
+
+        {/* Engine Settings Card */}
+        <Card className="p-6 mb-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+              <svg
+                className="w-5 h-5 text-purple-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold text-white">Engine Settings</h2>
+              <p className="text-gray-400 text-sm">
+                Configure chess engine behavior for analysis mode
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="analysisDepth" className="block text-sm font-medium text-gray-300 mb-2">
+                Analysis Depth: <span className="text-purple-400 font-bold">{analysisDepth}</span>
+              </label>
+              <input
+                id="analysisDepth"
+                type="range"
+                min={MIN_DEPTH}
+                max={MAX_DEPTH}
+                value={analysisDepth}
+                onChange={(e) => handleDepthChange(parseInt(e.target.value, 10))}
+                className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
+              />
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>Fast ({MIN_DEPTH})</span>
+                <span>Balanced (10-15)</span>
+                <span>Deep ({MAX_DEPTH})</span>
+              </div>
+            </div>
+
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
+              <div className="flex items-start gap-2">
+                <svg
+                  className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <p className="text-amber-300 text-sm">
+                  <strong>Note:</strong> Higher depth values provide more accurate analysis but 
+                  significantly increase calculation time. Values above 15 may cause noticeable 
+                  delays on slower devices.
+                </p>
+              </div>
+            </div>
+
+            {depthSaved && (
+              <div className="flex items-center gap-2 text-emerald-400 text-sm">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Settings saved
+              </div>
+            )}
+          </div>
         </Card>
 
         <Card className="p-6 bg-gray-800/30">
