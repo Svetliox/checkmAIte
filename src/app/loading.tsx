@@ -1,15 +1,10 @@
 import { Container, Button } from '@/components/ui';
 
-/**
- * Loading state for the app
- * Displayed while page content is being fetched/rendered
- */
 export default function Loading() {
   return (
     <div className="py-20">
       <Container>
         <div className="flex flex-col items-center justify-center min-h-[400px]">
-          {/* Animated chess piece loader */}
           <div className="relative">
             <div className="w-16 h-16 border-4 border-surface-2 rounded-full" />
             <div className="absolute top-0 left-0 w-16 h-16 border-4 border-accent-primary border-t-transparent rounded-full animate-spin" />

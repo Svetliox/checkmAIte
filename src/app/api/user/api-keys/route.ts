@@ -1,14 +1,9 @@
-// =============================================================================
-// checkmAIte - User API Keys API
-// =============================================================================
-// CRUD operations for user API keys
-// =============================================================================
+
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getUserApiKey, saveUserApiKey, deleteUserApiKey, hasUserApiKey } from '@/lib/db';
 
-// GET - Check if user has an API key for a provider
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
@@ -28,7 +23,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Save or update an API key
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
@@ -43,7 +37,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Provider and key are required' }, { status: 400 });
     }
 
-    // Validate key format (basic check for Groq keys)
     if (provider === 'groq' && !key.startsWith('gsk_')) {
       return NextResponse.json(
         { error: 'Invalid Groq API key format. Keys should start with "gsk_"' },
@@ -60,7 +53,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// DELETE - Remove an API key
 export async function DELETE(request: NextRequest) {
   try {
     const session = await auth();

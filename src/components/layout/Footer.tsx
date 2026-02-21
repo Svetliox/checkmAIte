@@ -14,7 +14,6 @@ export function Footer() {
       <Container>
         <div className="py-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Brand */}
             <div className="md:col-span-1">
               <Link
                 href="/"
@@ -32,7 +31,6 @@ export function Footer() {
               </p>
             </div>
 
-            {/* Project Links */}
             <div>
               <h4 className="font-semibold text-foreground mb-4">Project</h4>
               <ul className="space-y-2">
@@ -50,7 +48,6 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Bottom */}
           <div className="mt-12 pt-8 border-t border-border-default flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-sm text-foreground/50">
               © {new Date().getFullYear()} checkmAIte. All rights reserved.

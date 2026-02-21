@@ -7,14 +7,12 @@ import { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui';
 
-// Navigation items for logged-out users
 const publicNavItems = [
   { href: '/', label: 'Home' },
   { href: '/features', label: 'Features' },
   { href: '/help', label: 'Help' },
 ];
 
-// Navigation items for logged-in users
 const authNavItems = [
   { href: '/', label: 'Home' },
   { href: '/modes', label: 'Modes' },
@@ -31,7 +29,6 @@ export function Navigation() {
   const isLoggedIn = status === 'authenticated' && session?.user;
   const navItems = isLoggedIn ? authNavItems : publicNavItems;
 
-  // Close menu when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -44,7 +41,6 @@ export function Navigation() {
 
   return (
     <nav className="flex items-center gap-6">
-      {/* Nav Links */}
       <ul className="hidden md:flex items-center gap-1">
         {navItems.map((item) => (
           <li key={item.href}>
@@ -63,17 +59,14 @@ export function Navigation() {
         ))}
       </ul>
 
-      {/* Auth Section */}
       {status === 'loading' ? (
         <div className="w-20 h-9 bg-surface-1 rounded-lg animate-pulse" />
       ) : isLoggedIn ? (
-        /* User Menu */
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setShowUserMenu(!showUserMenu)}
             className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-surface-1 transition-colors"
           >
-            {/* Avatar */}
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center text-white font-semibold text-sm">
               {session.user.name?.charAt(0).toUpperCase() ||
                 session.user.email?.charAt(0).toUpperCase() ||
@@ -92,7 +85,6 @@ export function Navigation() {
             </svg>
           </button>
 
-          {/* Dropdown Menu */}
           {showUserMenu && (
             <div className="absolute right-0 mt-2 w-48 py-2 bg-surface-2 rounded-lg shadow-lg border border-border-default z-50">
               <Link
@@ -153,7 +145,6 @@ export function Navigation() {
           )}
         </div>
       ) : (
-        /* Login Button */
         <Link href="/login">
           <Button size="sm" className="hidden sm:inline-flex">
             Login
@@ -161,7 +152,6 @@ export function Navigation() {
         </Link>
       )}
 
-      {/* Mobile Menu Button */}
       <button
         className="md:hidden p-2 rounded-lg hover:bg-surface-1 transition-colors"
         aria-label="Toggle menu"

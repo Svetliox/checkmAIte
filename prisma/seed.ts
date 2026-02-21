@@ -1,10 +1,3 @@
-// =============================================================================
-// checkmAIte - Database Seed
-// =============================================================================
-// Creates default user for testing: checkmAIte / checkmAIte
-// This seed is idempotent - safe to run multiple times
-// =============================================================================
-
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
@@ -19,7 +12,6 @@ const DEFAULT_USER = {
 async function main() {
   console.log('🌱 Starting database seed...');
 
-  // Check if default user already exists
   const existingUser = await prisma.user.findUnique({
     where: { email: DEFAULT_USER.email },
   });
@@ -29,10 +21,8 @@ async function main() {
     return;
   }
 
-  // Hash the password
   const passwordHash = await bcrypt.hash(DEFAULT_USER.password, 12);
 
-  // Create the default user
   const user = await prisma.user.create({
     data: {
       email: DEFAULT_USER.email,

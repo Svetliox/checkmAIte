@@ -1,15 +1,10 @@
-// =============================================================================
-// checkmAIte - Registration API
-// =============================================================================
-// Handles user registration with password hashing
-// =============================================================================
+
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import bcrypt from 'bcrypt';
 import { z } from 'zod';
 
-// Validation schema
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
@@ -20,7 +15,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Validate input
     const result = registerSchema.safeParse(body);
     if (!result.success) {
       return NextResponse.json(
@@ -31,7 +25,6 @@ export async function POST(request: NextRequest) {
 
     const { name, email, password } = result.data;
 
-    // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
@@ -43,10 +36,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password
     const passwordHash = await bcrypt.hash(password, 12);
 
-    // Create user
     const user = await prisma.user.create({
       data: {
         name,

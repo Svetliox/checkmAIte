@@ -1,10 +1,5 @@
 'use client';
 
-// =============================================================================
-// checkmAIte - Login Page
-// =============================================================================
-// Login form with pre-filled default credentials for testing
-// =============================================================================
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
@@ -17,7 +12,6 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/modes';
 
-  // Pre-fill with default credentials
   const [email, setEmail] = useState('checkmAIte');
   const [password, setPassword] = useState('checkmAIte');
   const [error, setError] = useState('');
@@ -53,7 +47,6 @@ export default function LoginPage() {
     <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
       <Container size="sm">
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700/50 shadow-xl">
-          {/* Logo / Header */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-block">
               <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
@@ -63,14 +56,12 @@ export default function LoginPage() {
             <p className="text-gray-400 mt-2">Sign in to your account</p>
           </div>
 
-          {/* Default credentials hint */}
           <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4 mb-6">
             <p className="text-cyan-300 text-sm text-center">
               <span className="font-semibold">Test Account:</span> Click &quot;Sign In&quot; to use the pre-filled credentials
             </p>
           </div>
 
-          {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
@@ -151,7 +142,6 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          {/* Register link */}
           <div className="mt-6 text-center">
             <p className="text-gray-400">
               Don&apos;t have an account?{' '}

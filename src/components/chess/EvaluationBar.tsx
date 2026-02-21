@@ -1,37 +1,20 @@
-/**
- * EvaluationBar Component
- * 
- * Displays the engine evaluation as a visual bar with score.
- * Shows who is winning and by how much.
- * Can be used in both Analysis and Play vs Bot modes.
- */
+
 
 'use client';
 
 import { cn } from '@/lib/utils';
 
 interface EvaluationBarProps {
-  /** Evaluation in centipawns (positive = White advantage) */
   evaluation: number;
-  /** Mate in X moves (positive = White mates, negative = Black mates) */
   mate: number | null;
-  /** Board orientation - affects visual representation */
   orientation?: 'white' | 'black';
-  /** Current analysis depth */
   depth?: number;
-  /** Target analysis depth */
   targetDepth?: number;
-  /** Whether engine is currently analyzing */
   isAnalyzing?: boolean;
-  /** Size variant */
   size?: 'sm' | 'md' | 'lg';
-  /** Additional CSS classes */
   className?: string;
 }
 
-/**
- * Format evaluation score for display
- */
 function formatEval(score: number, mate: number | null): string {
   if (mate !== null) {
     return mate > 0 ? `M${mate}` : `M${Math.abs(mate)}`;
@@ -41,10 +24,6 @@ function formatEval(score: number, mate: number | null): string {
   return pawns >= 0 ? `+${pawns.toFixed(2)}` : pawns.toFixed(2);
 }
 
-/**
- * Calculate evaluation bar width percentage (0-100%)
- * Uses sigmoid function for smooth visual representation
- */
 function getEvalBarWidth(score: number, mate: number | null): number {
   if (mate !== null) {
     return mate > 0 ? 100 : 0;
@@ -67,8 +46,6 @@ export function EvaluationBar({
   const barWidth = getEvalBarWidth(evaluation, mate);
   const evalText = formatEval(evaluation, mate);
   
-  // If viewing from Black's perspective, we might want to flip the bar
-  // (White's advantage appears on the right instead of left)
   const adjustedBarWidth = orientation === 'black' ? 100 - barWidth : barWidth;
   
   const sizeClasses = {

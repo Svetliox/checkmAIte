@@ -3,10 +3,6 @@
 import { useEffect } from 'react';
 import { Container, Button } from '@/components/ui';
 
-/**
- * Error boundary for the app
- * Catches and displays errors in a user-friendly way
- */
 export default function Error({
   error,
   reset,
@@ -15,7 +11,6 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log the error to an error reporting service
     console.error('[Error Boundary]', error);
   }, [error]);
 
@@ -23,7 +18,6 @@ export default function Error({
     <div className="py-20">
       <Container>
         <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-          {/* Error icon */}
           <div className="w-20 h-20 rounded-full bg-accent-danger/10 flex items-center justify-center mb-6">
             <span className="text-4xl">♔</span>
           </div>
@@ -35,7 +29,6 @@ export default function Error({
             is saved locally.
           </p>
 
-          {/* Error details (development only) */}
           {process.env.NODE_ENV === 'development' && (
             <div className="mb-6 p-4 rounded-lg bg-surface-2 text-left max-w-lg w-full overflow-auto">
               <p className="text-sm font-mono text-accent-danger">

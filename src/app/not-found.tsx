@@ -1,16 +1,11 @@
 import Link from 'next/link';
 import { Container, Button } from '@/components/ui';
 
-/**
- * 404 Not Found page
- * Displayed when a route doesn't exist
- */
 export default function NotFound() {
   return (
     <div className="py-20">
       <Container>
         <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-          {/* Chess-themed 404 */}
           <div className="relative mb-8">
             <div className="text-8xl font-bold text-surface-2">404</div>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl">
@@ -25,7 +20,6 @@ export default function NotFound() {
             doesn&apos;t exist or has been moved to a different square.
           </p>
 
-          {/* Chess-themed suggestions */}
           <div className="flex flex-wrap justify-center gap-4 mb-8">
             <SuggestionCard
               icon="♟"

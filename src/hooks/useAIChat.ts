@@ -32,8 +32,6 @@ function generateMessageId(): string {
 export function useAIChat(options: UseAIChatOptions): UseAIChatReturn {
   const { gameMode, triggerInterval = 5 } = options;
   
-  // Start with empty messages to avoid hydration mismatch
-  // Welcome message is added client-side in useEffect
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +66,6 @@ export function useAIChat(options: UseAIChatOptions): UseAIChatReturn {
 
   
   const shouldTrigger = useCallback((moveCount: number): boolean => {
-    // Trigger every `triggerInterval` moves, but not at 0
     if (moveCount === 0) return false;
     if (moveCount % triggerInterval !== 0) return false;
     if (moveCount <= lastTriggeredMoveCount) return false;
@@ -82,7 +79,6 @@ export function useAIChat(options: UseAIChatOptions): UseAIChatReturn {
   ): Promise<void> => {
     const moveCount = moveHistory.length;
     
-    // Prevent duplicate requests
     if (pendingRequest.current) return;
     if (!shouldTrigger(moveCount)) return;
     

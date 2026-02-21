@@ -7,33 +7,19 @@ import { Button } from '@/components/ui';
 import type { BoardOrientation } from '@/types';
 
 interface ChessBoardProps {
-  /** Initial FEN position (defaults to starting position) */
   position?: string;
-  /** Board orientation - 'white' or 'black' */
   orientation?: BoardOrientation;
-  /** Whether the board is interactive */
   interactive?: boolean;
-  /** Board width in pixels */
   boardWidth?: number;
-  /** Callback when a move is made */
   onMove?: (move: { from: Square; to: Square; san: string }) => void;
-  /** Callback when position changes */
   onPositionChange?: (fen: string) => void;
-  /** Show board coordinates */
   showCoordinates?: boolean;
-  /** Custom light square color */
   lightSquareColor?: string;
-  /** Custom dark square color */
   darkSquareColor?: string;
-  /** Show internal Undo/Reset controls */
   showControls?: boolean;
-  /** Callback to flip board orientation */
   onFlipBoard?: () => void;
-  /** Callback to undo last move */
   onUndoMove?: () => void;
-  /** Callback to reset the game */
   onNewGame?: () => void;
-  /** Whether undo is available */
   canUndo?: boolean;
 }
 
@@ -53,7 +39,6 @@ export function ChessBoard({
   onNewGame,
   canUndo = false,
 }: ChessBoardProps) {
-  // Initialize chess instance with provided position or default
   const [game, setGame] = useState(() => {
     const chess = new Chess();
     if (position) {
@@ -66,14 +51,11 @@ export function ChessBoard({
     return chess;
   });
 
-  // Track selected square for highlighting
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
   const [moveSquares, setMoveSquares] = useState<Record<string, React.CSSProperties>>({});
 
-  // Track the last synced position to detect external changes
   const lastSyncedPosition = useRef<string | undefined>(position);
 
-  // Sync with position prop when it changes externally (for undo/reset)
   useEffect(() => {
     if (position && position !== lastSyncedPosition.current) {
       try {
@@ -97,13 +79,11 @@ export function ChessBoard({
     }
   }, [position, game]);
 
-  // Calculate legal moves for selected piece
   const legalMoves = useMemo(() => {
     if (!selectedSquare) return [];
     return game.moves({ square: selectedSquare, verbose: true });
   }, [game, selectedSquare]);
 
-  // Highlight legal move squares
   const getMoveSquareStyles = useCallback((): Record<string, React.CSSProperties> => {
     const styles: Record<string, React.CSSProperties> = {};
     
@@ -122,7 +102,6 @@ export function ChessBoard({
     return { ...styles, ...moveSquares };
   }, [selectedSquare, legalMoves, game, moveSquares]);
 
-  // Handle piece drop (drag and drop move)
   const handlePieceDrop = useCallback(
     ({ sourceSquare, targetSquare }: { piece: { isSparePiece: boolean; position: string; pieceType: string }; sourceSquare: string; targetSquare: string | null }): boolean => {
       if (!interactive || !targetSquare) return false;
@@ -164,7 +143,6 @@ export function ChessBoard({
     [game, interactive, onMove, onPositionChange]
   );
 
-  // Handle square click
   const handleSquareClick = useCallback(
     ({ square }: { piece: { pieceType: string } | null; square: string }) => {
       if (!interactive) return;
@@ -219,7 +197,6 @@ export function ChessBoard({
     [selectedSquare, game, interactive, onMove, onPositionChange]
   );
 
-  // Check game status and style
   const gameStatus = useMemo(() => {
     if (game.isCheckmate()) {
       return {
@@ -249,12 +226,10 @@ export function ChessBoard({
     };
   }, [game]);
 
-  // Calculate board width based on container
   const actualBoardWidth = Math.min(boardWidth, typeof window !== 'undefined' ? window.innerWidth - 32 : boardWidth);
 
   return (
     <div className="flex flex-col items-center gap-4">
-      {/* Status indicator - larger, color-coded */}
       <div
         className={`flex items-center justify-center gap-2 px-4 py-2 rounded-xl shadow-md border border-border-default transition-colors duration-300 ${gameStatus.color}`}
         style={{ minWidth: '180px', textAlign: 'center', fontSize: '1rem', letterSpacing: '0.02em', fontFamily: 'inherit', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
@@ -264,7 +239,6 @@ export function ChessBoard({
         <span className="font-medium tracking-wide" style={{ flex: 1 }}>{gameStatus.text}</span>
       </div>
 
-      {/* Chess board */}
       <div className="rounded-lg overflow-hidden shadow-2xl" style={{ width: actualBoardWidth, height: actualBoardWidth }}>
         <Chessboard
           options={{
@@ -295,7 +269,6 @@ export function ChessBoard({
         />
       </div>
 
-      {/* Controls */}
       {interactive && showControls && (
         <div className="flex flex-wrap items-center justify-center gap-3">
           {onFlipBoard && (
@@ -338,7 +311,6 @@ export function ChessBoard({
   );
 }
 
-// Icon components
 function FlipIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

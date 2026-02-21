@@ -1,17 +1,11 @@
-// =============================================================================
-// checkmAIte - NextAuth.js Configuration
-// =============================================================================
-// Handles user authentication with credentials (email/password)
-// Uses JWT strategy (edge-compatible)
-// =============================================================================
+
 
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 
-// NextAuth configuration - edge-compatible
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: {
-    strategy: 'jwt', // Use JWT for stateless sessions (edge-compatible)
+    strategy: 'jwt',
   },
   pages: {
     signIn: '/login',
@@ -32,16 +26,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const email = credentials.email as string;
         const password = credentials.password as string;
 
-        // Dynamic import to avoid edge runtime issues
         const { prisma } = await import('./db');
         const bcrypt = await import('bcrypt');
 
-        // Find user by email or by name (for checkmAIte user)
         const user = await prisma.user.findFirst({
           where: {
             OR: [
               { email: email },
-              { name: email }, // Allow login with username
+              { name: email },
             ],
           },
         });
@@ -50,7 +42,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
-        // Verify password
         const isValid = await bcrypt.compare(password, user.passwordHash);
         if (!isValid) {
           return null;

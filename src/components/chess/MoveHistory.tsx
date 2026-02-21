@@ -4,15 +4,10 @@ import { cn } from '@/lib/utils';
 import type { AnalyzedMove, GameHistoryEntry, MoveClassification } from '@/types';
 
 interface MoveHistoryProps {
-  /** Array of game history entries */
   history: GameHistoryEntry[];
-  /** Currently selected move number (for highlighting) */
   selectedMoveIndex?: number;
-  /** Callback when a move is clicked */
   onMoveClick?: (moveIndex: number) => void;
-  /** Show evaluation bars */
   showEvaluation?: boolean;
-  /** Maximum height before scrolling */
   maxHeight?: string;
 }
 

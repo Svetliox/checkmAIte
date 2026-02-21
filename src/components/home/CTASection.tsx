@@ -7,7 +7,6 @@ import { ChessBoard } from '@/components/chess';
 export function CTASection() {
   return (
     <section className="py-20 relative overflow-hidden">
-      {/* Background */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-surface-1 to-transparent" />
         <div className="absolute top-1/2 right-0 w-[600px] h-[600px] bg-accent-primary/5 rounded-full blur-3xl translate-x-1/2" />
@@ -15,7 +14,6 @@ export function CTASection() {
 
       <Container>
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Interactive board demo */}
           <div className="order-2 lg:order-1">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-accent-primary/20 to-accent-secondary/20 rounded-2xl blur-2xl -z-10" />
@@ -32,7 +30,6 @@ export function CTASection() {
             </div>
           </div>
 
-          {/* CTA content */}
           <div className="order-1 lg:order-2 text-center lg:text-left">
             <h2 className="text-3xl sm:text-4xl font-bold">
               Ready to Elevate

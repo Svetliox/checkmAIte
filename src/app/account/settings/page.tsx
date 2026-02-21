@@ -1,10 +1,5 @@
-'use client';
 
-// =============================================================================
-// checkmAIte - Account Settings Page
-// =============================================================================
-// Manage AI API keys and other settings
-// =============================================================================
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
@@ -20,7 +15,6 @@ export default function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // Load existing API key status
   useEffect(() => {
     async function loadApiKeyStatus() {
       try {
@@ -31,7 +25,6 @@ export default function SettingsPage() {
           setGroqApiKey('••••••••••••••••••••');
         }
       } catch {
-        // Ignore errors
       } finally {
         setIsLoading(false);
       }
@@ -44,7 +37,6 @@ export default function SettingsPage() {
     setMessage(null);
     setIsSaving(true);
 
-    // Don't save if it's the masked value
     if (groqApiKey === '••••••••••••••••••••') {
       setMessage({ type: 'error', text: 'Please enter a new API key to update' });
       setIsSaving(false);
@@ -106,7 +98,6 @@ export default function SettingsPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pt-24 pb-12">
       <Container size="md">
-        {/* Back link */}
         <Link
           href="/account"
           className="inline-flex items-center text-gray-400 hover:text-white mb-6 transition-colors"
@@ -117,13 +108,11 @@ export default function SettingsPage() {
           Back to Account
         </Link>
 
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Settings</h1>
           <p className="text-gray-400">Configure your AI API keys and preferences</p>
         </div>
 
-        {/* AI API Keys Section */}
         <Card className="p-6 mb-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center">
@@ -149,7 +138,6 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* Info Box */}
           <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4 mb-6">
             <p className="text-cyan-300 text-sm">
               <strong>Groq API</strong> provides fast AI inference for chess commentary. Get your free
@@ -165,7 +153,6 @@ export default function SettingsPage() {
             </p>
           </div>
 
-          {/* API Key Form */}
           <form onSubmit={handleSaveApiKey} className="space-y-4">
             {message && (
               <div
@@ -235,7 +222,6 @@ export default function SettingsPage() {
           </form>
         </Card>
 
-        {/* Security Note */}
         <Card className="p-6 bg-gray-800/30">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center flex-shrink-0">

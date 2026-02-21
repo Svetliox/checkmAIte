@@ -121,7 +121,7 @@ export function useStockfish(options: UseStockfishOptions = {}) {
       mounted = false;
       terminateStockfish();
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   
   const handleInfo = useCallback((fen: string, info: EngineInfo) => {

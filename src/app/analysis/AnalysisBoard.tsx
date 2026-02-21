@@ -6,12 +6,6 @@ import { ChessBoard } from '@/components/chess';
 import type { BoardOrientation } from '@/types';
 import { useAnalysis } from './AnalysisContext';
 
-/**
- * Analysis Board Client Component
- * 
- * This is a client component that handles the interactive chess board
- * and integrates with the Stockfish engine via AnalysisContext.
- */
 export function AnalysisBoard() {
   const [orientation, setOrientation] = useState<BoardOrientation>('white');
   const { 
@@ -28,14 +22,12 @@ export function AnalysisBoard() {
   const chessRef = useRef(new Chess());
   const previousEvalRef = useRef(0);
 
-  // Track evaluation for cp loss calculation
   useEffect(() => {
     if (analysis) {
       previousEvalRef.current = analysis.evaluation;
     }
   }, [analysis]);
 
-  // Sync chessRef when position changes externally (undo/reset)
   useEffect(() => {
     try {
       const newChess = new Chess();
@@ -44,33 +36,25 @@ export function AnalysisBoard() {
         chessRef.current = newChess;
       }
     } catch {
-      // Invalid FEN, ignore
     }
   }, [currentFen]);
 
   const handleMove = useCallback(
     (move: { from: string; to: string; san: string }) => {
-      // Determine if it was white's move
       const wasWhite = chessRef.current.turn() === 'w';
       
-      // Make the move on our tracked chess instance
       try {
         chessRef.current.move(move.san);
       } catch {
-        // Move already applied by ChessBoard
       }
       
-      // Get the new position
       const newFen = chessRef.current.fen();
       
-      // After a brief delay to let engine analyze, record the move
-      // The evaluation will be from the NEW position (opponent's perspective)
       setTimeout(() => {
         const evalAfter = analysis?.evaluation || 0;
         addMove(move.san, evalAfter, wasWhite);
       }, 500);
       
-      // Update the FEN for analysis
       setFen(newFen);
     },
     [setFen, addMove, analysis]
@@ -96,7 +80,6 @@ export function AnalysisBoard() {
 
   return (
     <div className="flex flex-col items-center gap-6">
-      {/* Board with unified controls */}
       <ChessBoard
         position={currentFen}
         orientation={orientation}
@@ -112,7 +95,6 @@ export function AnalysisBoard() {
         canUndo={moveHistory.length > 0}
       />
 
-      {/* Engine status indicator */}
       {isAnalyzing && (
         <div className="flex items-center gap-2 text-sm text-foreground/60">
           <div className="w-2 h-2 rounded-full bg-accent-primary animate-pulse" />
@@ -120,7 +102,6 @@ export function AnalysisBoard() {
         </div>
       )}
 
-      {/* Move history (simple display) */}
       {moveHistory.length > 0 && (
         <div className="w-full max-w-md">
           <div className="text-sm text-foreground/60 mb-2">Move History</div>

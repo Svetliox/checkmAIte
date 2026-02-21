@@ -7,7 +7,6 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border-default bg-background/80 backdrop-blur-lg">
       <Container>
         <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
           <Link
             href="/"
             className="flex items-center gap-2 text-xl font-bold transition-colors hover:text-accent-primary"
@@ -19,7 +18,6 @@ export function Header() {
             </span>
           </Link>
 
-          {/* Navigation */}
           <Navigation />
         </div>
       </Container>

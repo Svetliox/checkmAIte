@@ -1,10 +1,5 @@
 'use client';
 
-// =============================================================================
-// checkmAIte - Account Page
-// =============================================================================
-// User account overview with navigation to settings
-// =============================================================================
 
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
@@ -22,31 +17,26 @@ export default function AccountPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pt-24 pb-12">
       <Container>
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Account</h1>
           <p className="text-gray-400">Manage your account settings and preferences</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Profile Card */}
           <div className="lg:col-span-1">
             <Card className="p-6">
               <div className="flex flex-col items-center text-center">
-                {/* Avatar */}
                 <div className="w-24 h-24 rounded-full bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center mb-4">
                   <span className="text-3xl font-bold text-white">
                     {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
                   </span>
                 </div>
 
-                {/* Name & Email */}
                 <h2 className="text-xl font-semibold text-white mb-1">
                   {user.name || 'Chess Player'}
                 </h2>
                 <p className="text-gray-400 text-sm mb-6">{user.email}</p>
 
-                {/* Sign Out Button */}
                 <Button
                   variant="secondary"
                   size="sm"
@@ -59,9 +49,7 @@ export default function AccountPage() {
             </Card>
           </div>
 
-          {/* Settings Cards */}
           <div className="lg:col-span-2 space-y-6">
-            {/* AI Settings */}
             <Card className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -95,7 +83,6 @@ export default function AccountPage() {
               </div>
             </Card>
 
-            {/* Game Statistics (Placeholder) */}
             <Card className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -127,7 +114,6 @@ export default function AccountPage() {
               </div>
             </Card>
 
-            {/* Quick Actions */}
             <Card className="p-6">
               <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

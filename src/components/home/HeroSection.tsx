@@ -4,7 +4,6 @@ import { Container, Button } from '@/components/ui';
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden py-20 sm:py-32">
-      {/* Background gradient */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-accent-primary/10 via-background to-accent-secondary/10" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-accent-primary/5 rounded-full blur-3xl" />
@@ -12,7 +11,6 @@ export function HeroSection() {
 
       <Container>
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Text content */}
           <div className="text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent-primary/10 border border-accent-primary/20 text-accent-primary text-sm font-medium mb-6">
               <span className="relative flex h-2 w-2">
@@ -45,18 +43,14 @@ export function HeroSection() {
               </Link>
             </div>
 
-            {/* Stats removed as requested */}
           </div>
 
-          {/* Hero illustration - Chess board preview */}
           <div className="relative hidden lg:block">
             <div className="absolute inset-0 bg-gradient-to-r from-accent-primary/20 to-accent-secondary/20 rounded-3xl blur-3xl" />
             <div className="relative bg-surface-1 rounded-2xl p-6 border border-border-default shadow-2xl">
-              {/* Mini board visualization using CSS grid */}
               <div className="aspect-square w-full max-w-md mx-auto">
                 <ChessBoardIllustration />
               </div>
-              {/* Analysis overlay */}
               <div className="absolute bottom-4 left-4 right-4 bg-surface-2/95 backdrop-blur-sm rounded-lg p-4 border border-border-default">
                 <div className="flex items-center justify-between">
                   <div>
@@ -104,7 +98,6 @@ function ArrowRightIcon({ className }: { className?: string }) {
 }
 
 function ChessBoardIllustration() {
-  // Create an 8x8 chess board with pieces
   const board = [
     ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
     ['♟', '♟', '♟', '♟', '', '♟', '♟', '♟'],
@@ -122,8 +115,8 @@ function ChessBoardIllustration() {
         const col = index % 8;
         const isLight = (row + col) % 2 === 0;
         const isHighlighted =
-          (row === 3 && col === 4) || // e4
-          (row === 4 && col === 2); // c3 (knight)
+          (row === 3 && col === 4) ||
+          (row === 4 && col === 2);
 
         return (
           <div

@@ -35,7 +35,6 @@ export function FeaturesSection() {
   return (
     <section className="py-20 bg-surface-1">
       <Container>
-        {/* Section header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold">
             Everything You Need to
@@ -50,7 +49,6 @@ export function FeaturesSection() {
           </p>
         </div>
 
-        {/* Features grid */}
         <div className="grid md:grid-cols-2 gap-6">
           {features.map((feature) => (
             <Card
@@ -74,7 +72,6 @@ export function FeaturesSection() {
           ))}
         </div>
 
-        {/* ...existing code... */}
       </Container>
     </section>
   );

@@ -1,10 +1,5 @@
 'use client';
 
-// =============================================================================
-// checkmAIte - Register Page
-// =============================================================================
-// Registration form for new users
-// =============================================================================
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
@@ -26,13 +21,11 @@ export default function RegisterPage() {
     e.preventDefault();
     setError('');
 
-    // Validate passwords match
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
 
-    // Validate password length
     if (password.length < 6) {
       setError('Password must be at least 6 characters');
       return;
@@ -54,7 +47,6 @@ export default function RegisterPage() {
         return;
       }
 
-      // Auto-login after registration
       const result = await signIn('credentials', {
         email,
         password,
@@ -65,7 +57,6 @@ export default function RegisterPage() {
         router.push('/modes');
         router.refresh();
       } else {
-        // Registration succeeded but login failed - redirect to login
         router.push('/login');
       }
     } catch {
@@ -79,7 +70,6 @@ export default function RegisterPage() {
     <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
       <Container size="sm">
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700/50 shadow-xl">
-          {/* Logo / Header */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-block">
               <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
@@ -89,7 +79,6 @@ export default function RegisterPage() {
             <p className="text-gray-400 mt-2">Create your account</p>
           </div>
 
-          {/* Register Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
               <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
@@ -208,7 +197,6 @@ export default function RegisterPage() {
             </Button>
           </form>
 
-          {/* Login link */}
           <div className="mt-6 text-center">
             <p className="text-gray-400">
               Already have an account?{' '}

@@ -3,6 +3,8 @@ applyTo: "**"
 ---
 Before starting implementing new features in the back-end ,always consult with Next.js expert to ensure that your implementation aligns with the best practices and architectural decisions of the project. This will help avoid potential issues and ensure that your code integrates smoothly with the existing codebase.
 
+Do not leave comments in the code that are not necessary for understanding the logic or that are meant for debugging purposes. If you need to explain complex logic, use clear and concise comments that add value to the code. Remove any temporary comments or console logs before finalizing your code.
+
 Always after ,you complete a task, review the code for adherence to the project's coding guidelines and best practices. Ensure that your code is clean, well-documented, and follows the established conventions for naming, formatting, and structure. This will help maintain code quality and consistency across the project. And also do the verification below:
 
 ## Verification

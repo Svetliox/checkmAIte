@@ -1,10 +1,5 @@
-'use client';
 
-// =============================================================================
-// checkmAIte - Client Providers
-// =============================================================================
-// Wraps the app with client-side context providers
-// =============================================================================
+'use client';
 
 import { SessionProvider, useSession } from 'next-auth/react';
 import { type ReactNode, useEffect, useRef } from 'react';
@@ -14,20 +9,14 @@ interface ProvidersProps {
   children: ReactNode;
 }
 
-/**
- * Inner component that handles session-based preloading.
- * Separated to ensure useSession works within SessionProvider.
- */
+// Inner component to handle session-based preloading (required for useSession)
 function StockfishPreloader({ children }: { children: ReactNode }) {
   const { status } = useSession();
   const hasTriggeredPreload = useRef(false);
 
   useEffect(() => {
-    // Preload Stockfish when user becomes authenticated
     if (status === 'authenticated' && !hasTriggeredPreload.current) {
       hasTriggeredPreload.current = true;
-      
-      // Use requestIdleCallback for non-blocking preload
       const schedulePreload = window.requestIdleCallback || ((cb: () => void) => setTimeout(cb, 50));
       schedulePreload(() => {
         preloadStockfish();
