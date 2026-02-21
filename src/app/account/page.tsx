@@ -114,6 +114,39 @@ export default function AccountPage() {
               </div>
             </Card>
 
+              <Card className="p-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                        <svg
+                          className="w-5 h-5 text-purple-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 3v4m0 0V3m0 4h4m-4 0H1m18 14v-4m0 0v4m0-4h-4m4 0h4M7 7l10 10"
+                          />
+                        </svg>
+                      </div>
+                      <h3 className="text-lg font-semibold text-white">Saved Games</h3>
+                    </div>
+                    <p className="text-gray-400 text-sm">
+                      View and manage your saved chess games.
+                    </p>
+                  </div>
+                  <Link href="/account/saved-games">
+                    <Button variant="primary" size="sm">
+                      View
+                    </Button>
+                  </Link>
+                </div>
+              </Card>
+
             <Card className="p-6">
               <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

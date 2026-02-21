@@ -1,9 +1,11 @@
 'use client';
 
-import { Container, Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
+import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Container, Card, CardHeader, CardTitle, CardContent, Button, Modal, ModalHeader, ModalBody, ModalFooter } from '@/components/ui';
 import { AIChatPanel } from '@/components/chess';
 import { AnalysisBoard } from './AnalysisBoard';
-import { AnalysisProvider, useAnalysis } from './AnalysisContext';
+import { AnalysisProvider, useAnalysis, type PlayStatistics } from './AnalysisContext';
 
 
 export function AnalysisPageContent() {
@@ -15,37 +17,249 @@ export function AnalysisPageContent() {
 }
 
 function AnalysisLayout() {
-  const { 
-    status, 
-    error, 
-    analysis, 
-    statistics, 
-    whiteAccuracy, 
+  const searchParams = useSearchParams();
+  const loadGameId = searchParams.get('loadGame');
+  const hasLoadedRef = useRef(false);
+  
+  const {
+    status,
+    error,
+    currentFen,
+    analysis,
+    statistics,
+    whiteAccuracy,
     blackAccuracy,
     moveHistory,
     chatMessages,
     isChatLoading,
     chatError,
+    loadGame,
   } = useAnalysis();
+
+  // Load game from URL param
+  const [isLoadingGame, setIsLoadingGame] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (loadGameId && !hasLoadedRef.current) {
+      hasLoadedRef.current = true;
+      setIsLoadingGame(true);
+      setLoadError(null);
+      
+      fetch(`/api/saved-game?id=${loadGameId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data.success || !data.game) {
+            throw new Error(data.error || 'Game not found');
+          }
+          const game = data.game;
+          const parsedMoveHistory = JSON.parse(game.moveHistory) as string[];
+          const parsedStatistics = JSON.parse(game.statistics) as PlayStatistics;
+          const parsedTopMoves = game.topMoves ? JSON.parse(game.topMoves) : null;
+          loadGame(
+            game.fen, 
+            parsedMoveHistory, 
+            parsedStatistics, 
+            game.evaluationScore,
+            game.evaluation ?? null,
+            parsedTopMoves
+          );
+        })
+        .catch((err: Error) => {
+          setLoadError(err.message || 'Failed to load game');
+        })
+        .finally(() => {
+          setIsLoadingGame(false);
+        });
+    }
+  }, [loadGameId, loadGame]);
+
+  // Modal state
+  const [showModal, setShowModal] = useState(false);
+  const [gameName, setGameName] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Determine turn from FEN
+  const getTurn = (fen: string) => fen.split(' ')[1] === 'w' ? 'white' : 'black';
+
+  const handleSaveGame = async () => {
+    setSaving(true);
+    setSaveError('');
+    setSaveSuccess(false);
+    try {
+      // Get analysis depth from localStorage
+      const savedDepth = typeof window !== 'undefined' 
+        ? localStorage.getItem('checkmaite_analysis_depth') 
+        : null;
+      const depth = savedDepth ? savedDepth : '10';
+      
+      const res = await fetch('/api/saved-game', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: gameName.trim() || undefined,
+          fen: currentFen,
+          turn: getTurn(currentFen),
+          moveHistory,
+          statistics,
+          evaluationScore: analysis?.evaluation ?? 0,
+          gameType: 'analysis',
+          evaluation: analysis?.evaluation ?? null,
+          topMoves: analysis?.topMoves ?? null,
+          difficulty: depth,
+          playerColor: null, // Not applicable for analysis mode
+        }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Failed to save');
+      setSaveSuccess(true);
+      setTimeout(() => {
+        setShowModal(false);
+        setGameName('');
+        setSaveSuccess(false);
+      }, 1500);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error saving game';
+      setSaveError(message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setGameName('');
+    setSaveError('');
+    setSaveSuccess(false);
+  };
 
   return (
       <div className="py-8">
         <Container size="2xl">
-          {/* Page header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold">Analysis Board</h1>
-            <p className="mt-2 text-foreground/70">
-              Play moves and get real-time AI analysis
-            </p>
+          {/* Loading game overlay */}
+          {isLoadingGame && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+              <div className="bg-surface-1 rounded-2xl shadow-2xl p-8 flex flex-col items-center">
+                <svg className="w-12 h-12 animate-spin text-accent-primary mb-4" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                <p className="text-lg font-semibold text-foreground">Loading saved game...</p>
+              </div>
+            </div>
+          )}
+
+          {/* Load game error */}
+          {loadError && (
+            <div className="mb-6 p-4 rounded-xl bg-accent-danger/10 border border-accent-danger/30 text-accent-danger flex items-center gap-3">
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Failed to load game: {loadError}</span>
+              <button 
+                onClick={() => setLoadError(null)} 
+                className="ml-auto hover:bg-accent-danger/20 rounded-full p-1 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          )}
+
+          {/* Page header with Save button */}
+          <div className="mb-8 flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">Analysis Board</h1>
+              <p className="mt-2 text-foreground/70">
+                Play moves and get real-time AI analysis
+              </p>
+            </div>
+            <Button
+              variant="primary"
+              onClick={() => setShowModal(true)}
+              className="gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+              </svg>
+              Save Game
+            </Button>
           </div>
 
+          {/* Save game modal */}
+          <Modal open={showModal} onClose={closeModal}>
+            <ModalHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-full bg-accent-primary/10 text-accent-primary">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                  </svg>
+                </div>
+                Save Game
+              </div>
+            </ModalHeader>
+            <ModalBody>
+              {saveSuccess ? (
+                <div className="flex flex-col items-center py-4">
+                  <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mb-4">
+                    <svg className="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <p className="text-lg font-semibold text-foreground">Game Saved!</p>
+                  <p className="text-foreground/60 text-sm mt-1">Your game has been saved successfully</p>
+                </div>
+              ) : (
+                <>
+                  <label htmlFor="game-name" className="block text-sm font-medium text-foreground/70 mb-2">
+                    Game Name
+                  </label>
+                  <input
+                    id="game-name"
+                    className="w-full px-4 py-3 rounded-xl border border-border-default bg-surface-2 text-foreground
+                      placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-accent-primary/50 focus:border-accent-primary
+                      transition-all"
+                    type="text"
+                    value={gameName}
+                    onChange={e => setGameName(e.target.value)}
+                    placeholder="Enter a name (optional)"
+                    disabled={saving}
+                    autoFocus
+                  />
+                  <p className="text-xs text-foreground/50 mt-2">
+                    Leave blank for auto-generated name
+                  </p>
+                  {saveError && (
+                    <div className="mt-4 p-3 rounded-lg bg-accent-danger/10 border border-accent-danger/30 text-accent-danger text-sm flex items-center gap-2">
+                      <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      {saveError}
+                    </div>
+                  )}
+                </>
+              )}
+            </ModalBody>
+            {!saveSuccess && (
+              <ModalFooter>
+                <Button variant="ghost" onClick={closeModal} disabled={saving}>
+                  Cancel
+                </Button>
+                <Button variant="primary" onClick={handleSaveGame} isLoading={saving}>
+                  Save Game
+                </Button>
+              </ModalFooter>
+            )}
+          </Modal>
           {/* Error display */}
           {error && (
             <div className="mb-6 p-4 rounded-lg bg-accent-danger/10 border border-accent-danger text-accent-danger">
               Engine Error: {error}
             </div>
           )}
-
           {/* Main content grid - 3 columns: Chat | Board | Panels */}
           <div className="grid lg:grid-cols-[280px_1fr_350px] gap-6">
             {/* Left column: AI Chat */}
@@ -57,23 +271,18 @@ function AnalysisLayout() {
                 className="h-[600px]"
               />
             </div>
-
             {/* Center column: Chess board */}
             <div className="flex justify-center">
               <Card variant="bordered" padding="lg" className="flex-shrink-0">
                 <AnalysisBoard />
               </Card>
             </div>
-
             {/* Right column: Evaluation and Statistics panels */}
             <div className="space-y-6">
-              {/* Evaluation panel */}
               <EvaluationPanel 
                 status={status}
                 analysis={analysis}
               />
-
-              {/* Statistics panel */}
               <StatisticsPanel 
                 statistics={statistics}
                 whiteAccuracy={whiteAccuracy}

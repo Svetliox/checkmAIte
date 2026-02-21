@@ -77,6 +77,12 @@ export function useAIChat(options: UseAIChatOptions): UseAIChatReturn {
     fen: string,
     moveHistory: string[]
   ): Promise<void> => {
+    // Ensure moveHistory is a valid array
+    if (!Array.isArray(moveHistory)) {
+      console.warn('[useAIChat] moveHistory is not an array, skipping');
+      return;
+    }
+    
     const moveCount = moveHistory.length;
     
     if (pendingRequest.current) return;

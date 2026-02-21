@@ -36,7 +36,7 @@ export interface UseStockfishOptions {
 
 const DEFAULT_OPTIONS: UseStockfishOptions = {
   autoAnalyze: true,
-  depth: 12, 
+  depth: 10, 
   multiPv: 3,
   debounceMs: 200, 
 };
@@ -104,8 +104,15 @@ export function useStockfish(options: UseStockfishOptions = {}) {
           multiPv: opts.multiPv,
         });
         if (mounted) {
-          setStatus('ready');
-          setError(null);
+          // Check if engine is actually ready after init
+          if (isEngineReady()) {
+            setStatus('ready');
+            setError(null);
+          } else {
+            // Engine didn't initialize (e.g., timeout during inactive page)
+            // Keep status as loading - it will retry when engine is needed
+            setStatus('loading');
+          }
         }
       } catch (err) {
         if (mounted) {
@@ -122,6 +129,29 @@ export function useStockfish(options: UseStockfishOptions = {}) {
       terminateStockfish();
     };
   }, []);
+
+  // Retry initialization when page becomes visible and engine isn't ready
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (!document.hidden && status === 'loading' && !isEngineReady()) {
+        try {
+          await initStockfish({
+            depth: opts.depth,
+            multiPv: opts.multiPv,
+          });
+          if (isEngineReady()) {
+            setStatus('ready');
+            setError(null);
+          }
+        } catch {
+          // Silently ignore - will retry next time
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [status, opts.depth, opts.multiPv]);
 
   
   const handleInfo = useCallback((fen: string, info: EngineInfo) => {
@@ -292,5 +322,6 @@ export function useStockfish(options: UseStockfishOptions = {}) {
     setFen,
     stop,
     updateConfig,
+    setAnalysis,
 	};
 }

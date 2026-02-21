@@ -10,25 +10,32 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Container, Card, CardContent } from '@/components/ui';
+import { LoadGameModal } from '@/components/chess';
 import { initStockfish, isEngineReady } from '@/lib/chess/stockfish';
 
 export function ModesPageContent() {
-  const [engineStatus, setEngineStatus] = useState<'loading' | 'ready' | 'error'>(() => {
-    const alreadyReady = isEngineReady();
-    console.log('[ModesPage] Initial render - isEngineReady():', alreadyReady);
-    return alreadyReady ? 'ready' : 'loading';
-  });
+  // Always start with 'loading' to avoid hydration mismatch
+  // (isEngineReady() returns false on server but may be true on client)
+  const [engineStatus, setEngineStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  
+  const [showLoadGameModal, setShowLoadGameModal] = useState(false);
 
   useEffect(() => {
-    console.log('[ModesPage] useEffect running - isEngineReady():', isEngineReady());
+    let mounted = true;
+
+    // Check if already ready first
+    const alreadyReady = isEngineReady();
     
-    if (isEngineReady()) {
+    if (alreadyReady) {
       console.log('[ModesPage] Engine already ready, skipping init');
-      return;
+      // Use requestAnimationFrame to avoid synchronous setState in effect body
+      requestAnimationFrame(() => {
+        if (mounted) setEngineStatus('ready');
+      });
+      return () => { mounted = false; };
     }
 
     console.log('[ModesPage] Starting Stockfish initialization...');
-    let mounted = true;
 
     initStockfish({
       depth: 20,
@@ -65,7 +72,7 @@ export function ModesPageContent() {
         </div>
 
         {/* Mode Cards */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {/* Analysis Mode Card */}
           <Link href="/analysis" className="block group">
             <Card 
@@ -244,6 +251,64 @@ export function ModesPageContent() {
               </Link>
             )}
           </div>
+
+          {/* Load Game Card */}
+          <button 
+            onClick={() => setShowLoadGameModal(true)}
+            className="block group text-left w-full"
+          >
+            <Card 
+              variant="bordered" 
+              className="h-full transition-all duration-300 hover:border-accent-success hover:shadow-lg hover:shadow-accent-success/10 group-hover:scale-[1.02]"
+            >
+              <CardContent className="p-8">
+                <div className="flex flex-col items-center text-center">
+                  {/* Icon */}
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-accent-success/20 to-accent-primary/20 flex items-center justify-center mb-6">
+                    <svg
+                      className="w-10 h-10 text-accent-success"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+                      />
+                    </svg>
+                  </div>
+                  
+                  {/* Title */}
+                  <h2 className="text-2xl font-bold mb-3 group-hover:text-accent-success transition-colors">
+                    Load Game
+                  </h2>
+                  
+                  {/* Description */}
+                  <p className="text-foreground/70 mb-6">
+                    Continue a previously saved game. Pick up where you left off!
+                  </p>
+                  
+                  {/* Features */}
+                  <ul className="text-sm text-foreground/60 space-y-2">
+                    <li className="flex items-center gap-2">
+                      <CheckIcon />
+                      <span>Load analysis games</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckIcon />
+                      <span>Load vs Bot games</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckIcon />
+                      <span>Resume from any position</span>
+                    </li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+          </button>
         </div>
 
         {/* Footer hint */}
@@ -251,6 +316,12 @@ export function ModesPageContent() {
           You can switch between modes anytime using the navigation menu.
         </p>
       </Container>
+
+      {/* Load Game Modal */}
+      <LoadGameModal 
+        isOpen={showLoadGameModal} 
+        onClose={() => setShowLoadGameModal(false)} 
+      />
     </div>
   );
 }

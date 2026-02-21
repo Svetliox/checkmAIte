@@ -50,7 +50,7 @@ export function Footer() {
 
           <div className="mt-12 pt-8 border-t border-border-default flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-sm text-foreground/50">
-              © {new Date().getFullYear()} checkmAIte. All rights reserved.
+              © 2026 checkmAIte. All rights reserved.
             </p>
             <div className="flex items-center gap-4">
               <a

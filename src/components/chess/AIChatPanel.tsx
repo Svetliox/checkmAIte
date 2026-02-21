@@ -169,14 +169,23 @@ function TypingIndicator() {
 
 
 function ClientTimestamp({ date }: { date: Date }) {
-  const [timeString] = useState<string>(() => {
-    if (typeof window === 'undefined') return '';
-    return new Date(date).toLocaleTimeString([], { 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
-  });
+  const [timeString, setTimeString] = useState<string>('');
+  const [isMounted, setIsMounted] = useState(false);
 
+  useEffect(() => {
+    // Use requestAnimationFrame to defer setState and avoid lint warning
+    requestAnimationFrame(() => {
+      setIsMounted(true);
+      setTimeString(
+        new Date(date).toLocaleTimeString([], { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        })
+      );
+    });
+  }, [date]);
+
+  if (!isMounted) return null;
   return <>{timeString}</>;
 }
 

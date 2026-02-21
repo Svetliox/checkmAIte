@@ -58,6 +58,7 @@ interface PlayContextValue {
   chatError: string | null;
 
   setupGame: (color: PlayerColor, difficulty: BotDifficulty) => void;
+  loadGame: (fen: string, moves: string[], color?: PlayerColor, diff?: BotDifficulty, savedTopMoves?: MultiPvLine[] | null) => void;
   makePlayerMove: (from: string, to: string, promotion?: string) => boolean;
   resetGame: () => void;
   backToSetup: () => void;
@@ -347,6 +348,41 @@ export function PlayProvider({ children }: PlayProviderProps) {
     setPhase('playing');
   }, [resetChat]);
 
+  const loadGame = useCallback((
+    loadedFen: string,
+    moves: string[],
+    color?: PlayerColor,
+    diff?: BotDifficulty,
+    savedTopMoves?: MultiPvLine[] | null
+  ) => {
+    stopAnalysis();
+
+    gameVersionRef.current++;
+
+    const game = new Chess(loadedFen);
+    gameRef.current = game;
+    
+    if (color) setPlayerColor(color);
+    if (diff) setDifficulty(diff);
+    setFen(game.fen());
+    setMoveHistory(moves);
+    setGameResult({ type: 'ongoing' });
+    setEvaluation(0);
+    setMate(null);
+    // Restore top moves if provided from saved game
+    setTopMoves(savedTopMoves || []);
+    setDepth(0);
+    setIsAnalyzing(false);
+    setIsBotThinking(false);
+
+    isProcessingBotMove.current = false;
+    pendingBotMove.current = false;
+
+    resetChat();
+    
+    setPhase('playing');
+  }, [resetChat]);
+
   useEffect(() => {
     if (phase === 'playing' && gameResult.type === 'ongoing' && shouldTrigger(moveHistory.length)) {
       triggerCommentary(fen, moveHistory);
@@ -437,6 +473,7 @@ export function PlayProvider({ children }: PlayProviderProps) {
     isChatLoading,
     chatError,
     setupGame,
+    loadGame,
     makePlayerMove,
     resetGame,
     backToSetup,

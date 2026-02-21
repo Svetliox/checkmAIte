@@ -216,7 +216,17 @@ export function ChessBoard({
     };
   }, [game]);
 
-  const actualBoardWidth = Math.min(boardWidth, typeof window !== 'undefined' ? window.innerWidth - 32 : boardWidth);
+  // Use state to track actual board width to avoid hydration mismatch
+  const [actualBoardWidth, setActualBoardWidth] = useState(boardWidth);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      setActualBoardWidth(Math.min(boardWidth, window.innerWidth - 32));
+    };
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, [boardWidth]);
 
   return (
     <div className="flex flex-col items-center gap-4">

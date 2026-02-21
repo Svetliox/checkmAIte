@@ -47,7 +47,6 @@ CREATE TABLE "VerificationToken" (
     "expires" TIMESTAMP(3) NOT NULL
 );
 
--- CreateTable
 CREATE TABLE "ApiKey" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
@@ -57,6 +56,21 @@ CREATE TABLE "ApiKey" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "ApiKey_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "SavedGame" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "fen" TEXT NOT NULL,
+    "turn" TEXT NOT NULL,
+    "moveHistory" TEXT NOT NULL,
+    "statistics" TEXT NOT NULL,
+    "evaluationScore" DOUBLE PRECISION NOT NULL,
+    CONSTRAINT "SavedGame_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "SavedGame_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE
 );
 
 -- CreateIndex

@@ -1,0 +1,27 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Prisma DB migrate",
+			"type": "shell",
+			"command": "npx prisma migrate dev --name add_saved_game",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Prisma DB migrate",
+			"type": "shell",
+			"command": "npx prisma migrate dev --name add_saved_game",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		}
+	]
+}

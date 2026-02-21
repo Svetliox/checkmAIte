@@ -3,7 +3,7 @@
 
 import { createContext, useContext, useState, useCallback, useMemo, useEffect, type ReactNode } from 'react';
 import { useStockfish, type StockfishAnalysis, useAIChat } from '@/hooks';
-import type { EngineStatus, MoveClassification, ChatMessage } from '@/types';
+import type { EngineStatus, MoveClassification, ChatMessage, MultiPvLine } from '@/types';
 import { estimateAccuracy } from '@/lib/chess/gameAnalysis';
 
 export interface PlayStatistics {
@@ -46,11 +46,33 @@ interface AnalysisContextValue {
   addMove: (san: string, evaluation: number, wasWhite: boolean) => void;
   undoLastMove: () => void;
   resetGame: () => void;
+  loadGame: (
+    fen: string, 
+    moveHistory: string[], 
+    statistics: PlayStatistics, 
+    evaluationScore: number,
+    evaluation?: number | null,
+    topMoves?: MultiPvLine[] | null
+  ) => void;
 }
 
 const AnalysisContext = createContext<AnalysisContextValue | null>(null);
 
 const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+const ANALYSIS_DEPTH_KEY = 'checkmaite_analysis_depth';
+const DEFAULT_ANALYSIS_DEPTH = 10;
+
+function getStoredAnalysisDepth(): number {
+  if (typeof window === 'undefined') return DEFAULT_ANALYSIS_DEPTH;
+  const saved = localStorage.getItem(ANALYSIS_DEPTH_KEY);
+  if (saved) {
+    const parsed = parseInt(saved, 10);
+    if (!isNaN(parsed) && parsed >= 5 && parsed <= 25) {
+      return parsed;
+    }
+  }
+  return DEFAULT_ANALYSIS_DEPTH;
+}
 
 function classifyFromCpLoss(cpLoss: number): MoveClassification {
   const absLoss = Math.abs(cpLoss);
@@ -63,9 +85,12 @@ function classifyFromCpLoss(cpLoss: number): MoveClassification {
 }
 
 export function AnalysisProvider({ children }: { children: ReactNode }) {
+  // Start with default depth, will update from localStorage in useEffect
+  const [analysisDepth] = useState(() => getStoredAnalysisDepth());
+  
   const stockfish = useStockfish({
     autoAnalyze: true,
-    depth: 12, 
+    depth: analysisDepth, 
     multiPv: 3,
     debounceMs: 200,
   });
@@ -179,6 +204,43 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
     resetChat();
   }, [stockfish, resetChat]);
 
+  const loadGame = useCallback((
+    fen: string,
+    history: string[],
+    stats: PlayStatistics,
+    evaluationScore: number,
+    evaluation?: number | null,
+    topMoves?: MultiPvLine[] | null
+  ) => {
+    setCurrentFen(fen);
+    setMoveHistory(history);
+    setStatistics(stats);
+    setPreviousEval(evaluationScore);
+    setHistoryStack([]);
+    
+    // If we have saved evaluation/topMoves, set them as initial analysis
+    // The engine will automatically recalculate when analyzing a new position
+    if (evaluation !== null && evaluation !== undefined) {
+      const isWhiteTurn = fen.split(' ')[1] === 'w';
+      stockfish.setAnalysis({
+        evaluation,
+        mate: null,
+        depth: 0,
+        targetDepth: analysisDepth,
+        bestMove: topMoves?.[0]?.moves?.[0] || '',
+        bestMoveSan: topMoves?.[0]?.sanMoves?.[0] || '',
+        topMoves: topMoves || [],
+        nodes: 0,
+        nps: 0,
+        time: 0,
+        isWhiteTurn,
+      });
+    }
+    
+    stockfish.setFen(fen);
+    resetChat();
+  }, [stockfish, resetChat, analysisDepth]);
+
   useEffect(() => {
     if (shouldTrigger(moveHistory.length)) {
       triggerCommentary(currentFen, moveHistory);
@@ -213,6 +275,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
     addMove,
     undoLastMove,
     resetGame,
+    loadGame,
   };
 
   return (
