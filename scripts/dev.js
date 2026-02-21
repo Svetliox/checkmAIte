@@ -111,18 +111,30 @@ function runCommand(command, args = []) {
 function ensureEnvFile() {
   const fs = require('fs');
   const path = require('path');
+  const envPath = path.join(process.cwd(), '.env');
   const envLocalPath = path.join(process.cwd(), '.env.local');
   const envExamplePath = path.join(process.cwd(), '.env.example');
   
-  if (!fs.existsSync(envLocalPath)) {
-    if (fs.existsSync(envExamplePath)) {
-      fs.copyFileSync(envExamplePath, envLocalPath);
-      return 'copied';
-    } else {
-      return 'missing';
-    }
+  let status = { local: 'exists', base: 'exists' };
+  
+  // Check .env.example exists
+  if (!fs.existsSync(envExamplePath)) {
+    return 'missing';
   }
-  return 'exists';
+  
+  // Ensure .env.local exists (for Next.js)
+  if (!fs.existsSync(envLocalPath)) {
+    fs.copyFileSync(envExamplePath, envLocalPath);
+    status.local = 'copied';
+  }
+  
+  // Ensure .env exists (for Prisma CLI)
+  if (!fs.existsSync(envPath)) {
+    fs.copyFileSync(envExamplePath, envPath);
+    status.base = 'copied';
+  }
+  
+  return status;
 }
 
 async function main() {
@@ -133,11 +145,15 @@ async function main() {
   console.log('');
 
   const envStatus = ensureEnvFile();
-  if (envStatus === 'copied') {
-    logSuccess('Created .env.local from .env.example');
-  } else if (envStatus === 'missing') {
-    logError('.env.example not found! Please create .env.local manually.');
+  if (envStatus === 'missing') {
+    logError('.env.example not found! Please create environment files manually.');
     process.exit(1);
+  }
+  if (envStatus.local === 'copied' || envStatus.base === 'copied') {
+    const files = [];
+    if (envStatus.local === 'copied') files.push('.env.local');
+    if (envStatus.base === 'copied') files.push('.env');
+    logSuccess(`Created ${files.join(' and ')} from .env.example`);
   }
 
   logStep('1/5', 'Checking Docker Desktop...');
