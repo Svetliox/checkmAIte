@@ -19,7 +19,6 @@ function formatEval(score: number, mate: number | null): string {
   if (mate !== null) {
     return mate > 0 ? `M${mate}` : `M${Math.abs(mate)}`;
   }
-  // Convert centipawns to pawns
   const pawns = score / 100;
   return pawns >= 0 ? `+${pawns.toFixed(2)}` : pawns.toFixed(2);
 }

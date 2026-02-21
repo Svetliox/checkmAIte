@@ -94,8 +94,8 @@ export function ChessBoard({
     legalMoves.forEach((move) => {
       styles[move.to] = {
         backgroundColor: game.get(move.to as Square)
-          ? 'rgba(255, 0, 0, 0.4)' // Capture square
-          : 'rgba(0, 255, 0, 0.3)', // Empty square
+          ? 'rgba(255, 0, 0, 0.4)' 
+          : 'rgba(0, 255, 0, 0.3)', 
       };
     });
 
@@ -107,23 +107,19 @@ export function ChessBoard({
       if (!interactive || !targetSquare) return false;
 
       try {
-        // Create a new game instance to avoid mutation issues
         const newGame = new Chess(game.fen());
         const move = newGame.move({
           from: sourceSquare as Square,
           to: targetSquare as Square,
-          promotion: 'q', // Always promote to queen for simplicity
+          promotion: 'q',
         });
 
         if (move === null) return false;
 
         const newFen = newGame.fen();
         
-        // Update lastSyncedPosition BEFORE calling onPositionChange
-        // This prevents the sync effect from reverting the move
         lastSyncedPosition.current = newFen;
 
-        // Update game state
         setGame(newGame);
         setSelectedSquare(null);
         setMoveSquares({
@@ -131,7 +127,6 @@ export function ChessBoard({
           [targetSquare]: { backgroundColor: 'rgba(255, 255, 0, 0.4)' },
         });
 
-        // Notify parent components
         onMove?.({ from: sourceSquare as Square, to: targetSquare as Square, san: move.san });
         onPositionChange?.(newFen);
 
@@ -148,10 +143,8 @@ export function ChessBoard({
       if (!interactive) return;
       const sq = square as Square;
 
-      // If a piece is already selected, try to move
       if (selectedSquare) {
         try {
-          // Create a new game instance to avoid mutation issues
           const newGame = new Chess(game.fen());
           const move = newGame.move({
             from: selectedSquare,
@@ -162,7 +155,6 @@ export function ChessBoard({
           if (move) {
             const newFen = newGame.fen();
             
-            // Update lastSyncedPosition BEFORE calling onPositionChange
             lastSyncedPosition.current = newFen;
             
             setGame(newGame);
@@ -179,7 +171,6 @@ export function ChessBoard({
           // Invalid move, continue to select logic
         }
         
-        // If move failed, select the new square if it has a piece
         const piece = game.get(sq);
         if (piece && piece.color === game.turn()) {
           setSelectedSquare(sq);
@@ -187,7 +178,6 @@ export function ChessBoard({
           setSelectedSquare(null);
         }
       } else {
-        // Select the square if it has a piece of the current turn's color
         const piece = game.get(sq);
         if (piece && piece.color === game.turn()) {
           setSelectedSquare(sq);
@@ -251,7 +241,6 @@ export function ChessBoard({
             boardStyle: {
               borderRadius: '8px',
             },
-            // Notation styling - make coordinates more visible
             lightSquareNotationStyle: {
               fontSize: '16px',
               fontWeight: '700',

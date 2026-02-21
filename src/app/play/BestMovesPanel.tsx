@@ -1,10 +1,3 @@
-/**
- * Best Moves Panel Component
- * 
- * Toggleable panel showing the top suggested moves for the player.
- * Can be hidden to make the game more challenging.
- */
-
 'use client';
 
 import { Card, CardContent, Button } from '@/components/ui';
@@ -12,15 +5,10 @@ import { type MultiPvLine } from '@/types';
 import { cn } from '@/lib/utils';
 
 interface BestMovesPanelProps {
-  /** Top moves from engine analysis */
   topMoves: MultiPvLine[];
-  /** Whether the panel content is visible */
   showMoves: boolean;
-  /** Toggle visibility callback */
   onToggle: () => void;
-  /** Whether engine is currently analyzing */
   isAnalyzing?: boolean;
-  /** Additional CSS classes */
   className?: string;
 }
 
@@ -57,7 +45,6 @@ export function BestMovesPanel({
                 <MoveRow key={line.rank} rank={i + 1} line={line} />
               ))
             ) : (
-              // Loading state
               <LoadingMoves isAnalyzing={isAnalyzing} />
             )}
           </div>
@@ -70,10 +57,6 @@ export function BestMovesPanel({
     </Card>
   );
 }
-
-// ============================================
-// Move Row Component
-// ============================================
 
 interface MoveRowProps {
   rank: number;
@@ -107,10 +90,6 @@ function MoveRow({ rank, line }: MoveRowProps) {
     </div>
   );
 }
-
-// ============================================
-// Loading State
-// ============================================
 
 interface LoadingMovesProps {
   isAnalyzing: boolean;

@@ -20,9 +20,6 @@ import { PlayBoard } from './PlayBoard';
 import { BestMovesPanel } from './BestMovesPanel';
 import { BOT_DIFFICULTY_CONFIG } from '@/types';
 
-/**
- * Main play page with context provider
- */
 export function PlayPageContent() {
   return (
     <PlayProvider>
@@ -31,9 +28,6 @@ export function PlayPageContent() {
   );
 }
 
-/**
- * Layout component that consumes play context
- */
 function PlayLayout() {
   const {
     phase,
@@ -58,7 +52,6 @@ function PlayLayout() {
     chatError,
   } = usePlay();
 
-  // Setup phase - show game setup screen
   if (phase === 'setup') {
     return (
       <div className="py-12">
@@ -73,7 +66,6 @@ function PlayLayout() {
     );
   }
 
-  // Playing or ended phase - show game UI
   return (
     <div className="py-8">
       <Container size="2xl">
@@ -153,10 +145,6 @@ function PlayLayout() {
   );
 }
 
-// ============================================
-// Status Indicator
-// ============================================
-
 function StatusIndicator() {
   const { isPlayerTurn, isBotThinking, gameResult, playerColor } = usePlay();
 
@@ -184,10 +172,6 @@ function StatusIndicator() {
     </span>
   );
 }
-
-// ============================================
-// Game Result Card
-// ============================================
 
 interface GameResultCardProps {
   result: ReturnType<typeof usePlay>['gameResult'];
@@ -236,10 +220,6 @@ function GameResultCard({ result, playerColor, onPlayAgain, onNewGame }: GameRes
   );
 }
 
-// ============================================
-// Move History Panel
-// ============================================
-
 interface MoveHistoryPanelProps {
   moves: string[];
 }
@@ -260,7 +240,6 @@ function MoveHistoryPanel({ moves }: MoveHistoryPanelProps) {
     );
   }
 
-  // Group moves into pairs (white, black)
   const movePairs: { number: number; white?: string; black?: string }[] = [];
   for (let i = 0; i < moves.length; i += 2) {
     movePairs.push({

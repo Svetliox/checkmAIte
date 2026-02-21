@@ -136,7 +136,6 @@ function MoveCell({ move, isSelected, showEvaluation, onClick }: MoveCellProps) 
   );
 }
 
-// Export a demo history for testing
 export function createDemoHistory(): GameHistoryEntry[] {
   return [
     {

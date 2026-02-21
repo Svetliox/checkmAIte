@@ -1,9 +1,3 @@
-/**
- * Game Setup Component
- * 
- * Allows user to select their color and difficulty level before starting a game.
- */
-
 'use client';
 
 import { useState } from 'react';
@@ -107,11 +101,6 @@ export function GameSetup({ onStartGame, engineStatus, engineError }: GameSetupP
     </div>
   );
 }
-
-// ============================================
-// Color Button Component
-// ============================================
-
 interface ColorButtonProps {
   color: PlayerColor;
   selected: boolean;
@@ -148,10 +137,6 @@ function ColorButton({ color, selected, onClick }: ColorButtonProps) {
     </button>
   );
 }
-
-// ============================================
-// Difficulty Button Component
-// ============================================
 
 interface DifficultyButtonProps {
   difficulty: BotDifficulty;

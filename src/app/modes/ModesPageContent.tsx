@@ -13,18 +13,15 @@ import { Container, Card, CardContent } from '@/components/ui';
 import { initStockfish, isEngineReady } from '@/lib/chess/stockfish';
 
 export function ModesPageContent() {
-  // Check if engine is already ready (from previous navigation)
   const [engineStatus, setEngineStatus] = useState<'loading' | 'ready' | 'error'>(() => {
     const alreadyReady = isEngineReady();
     console.log('[ModesPage] Initial render - isEngineReady():', alreadyReady);
     return alreadyReady ? 'ready' : 'loading';
   });
 
-  // Pre-initialize Stockfish when modes page loads
   useEffect(() => {
     console.log('[ModesPage] useEffect running - isEngineReady():', isEngineReady());
     
-    // Skip if already ready - initial state already set via lazy initializer
     if (isEngineReady()) {
       console.log('[ModesPage] Engine already ready, skipping init');
       return;

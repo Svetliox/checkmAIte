@@ -1,10 +1,3 @@
-/**
- * Analysis Page Client Content
- * 
- * Client-side wrapper that provides AnalysisContext and renders
- * live evaluation data from Stockfish.
- */
-
 'use client';
 
 import { Container, Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
@@ -12,9 +5,7 @@ import { AIChatPanel } from '@/components/chess';
 import { AnalysisBoard } from './AnalysisBoard';
 import { AnalysisProvider, useAnalysis } from './AnalysisContext';
 
-/**
- * Main analysis page layout with context provider
- */
+
 export function AnalysisPageContent() {
   return (
     <AnalysisProvider>
@@ -23,9 +14,6 @@ export function AnalysisPageContent() {
   );
 }
 
-/**
- * Layout component that consumes analysis context
- */
 function AnalysisLayout() {
   const { 
     status, 
@@ -99,9 +87,6 @@ function AnalysisLayout() {
   );
 }
 
-/**
- * Evaluation Panel - Shows engine analysis results
- */
 function EvaluationPanel({ 
   status, 
   analysis 
@@ -109,17 +94,16 @@ function EvaluationPanel({
   status: string;
   analysis: ReturnType<typeof useAnalysis>['analysis'];
 }) {
-  // Format evaluation score
+
   const formatEval = (score: number, mate: number | null): string => {
     if (mate !== null) {
       return mate > 0 ? `M${mate}` : `M${mate}`;
     }
-    // Convert centipawns to pawns
+
     const pawns = score / 100;
     return pawns >= 0 ? `+${pawns.toFixed(2)}` : pawns.toFixed(2);
   };
 
-  // Calculate evaluation bar width (0-100%)
   const getEvalBarWidth = (score: number, mate: number | null): number => {
     if (mate !== null) {
       return mate > 0 ? 100 : 0;
@@ -206,7 +190,6 @@ function EvaluationPanel({
                   </div>
                 ))
               ) : (
-                // Loading state
                 [1, 2, 3].map((i) => (
                   <div
                     key={i}
@@ -232,9 +215,7 @@ function EvaluationPanel({
   );
 }
 
-/**
- * Statistics Panel - Shows game statistics
- */
+
 function StatisticsPanel({
   statistics,
   whiteAccuracy,

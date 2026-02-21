@@ -9,7 +9,6 @@ interface ProvidersProps {
   children: ReactNode;
 }
 
-// Inner component to handle session-based preloading (required for useSession)
 function StockfishPreloader({ children }: { children: ReactNode }) {
   const { status } = useSession();
   const hasTriggeredPreload = useRef(false);

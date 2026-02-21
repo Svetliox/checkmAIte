@@ -77,7 +77,6 @@ export function FeaturesSection() {
   );
 }
 
-// Icon components
 function AnalysisIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">

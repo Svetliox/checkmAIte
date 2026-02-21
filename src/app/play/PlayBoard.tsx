@@ -1,10 +1,3 @@
-/**
- * Play vs Bot Board Component
- * 
- * Interactive chess board for playing against the bot.
- * Only allows moves when it's the player's turn.
- */
-
 'use client';
 
 import { ChessBoard } from '@/components/chess';
@@ -27,16 +20,12 @@ export function PlayBoard({ className }: PlayBoardProps) {
     resetGame,
   } = usePlay();
 
-  // Handle move from the chess board
   const handleMove = (move: { from: Square; to: Square; san: string }) => {
-    // Note: Promotions are handled internally by ChessBoard
     makePlayerMove(move.from, move.to);
   };
 
-  // Board is interactive only when it's player's turn and game is ongoing
   const isInteractive = isPlayerTurn && gameResult.type === 'ongoing';
 
-  // Show result info below board if game ended
   let resultPanel: React.ReactNode = null;
   if (gameResult.type !== 'ongoing') {
     let title = '';
@@ -90,10 +79,6 @@ export function PlayBoard({ className }: PlayBoardProps) {
     </div>
   );
 }
-
-// ============================================
-// Bot Thinking Overlay
-// ============================================
 
 function BotThinkingOverlay() {
   return (

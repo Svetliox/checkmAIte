@@ -64,7 +64,6 @@ export async function POST(
       );
     }
 
-    // Check for API key - first try user's key, then system key
     let apiKey: string | null = null;
     
     // Try to get user's API key
@@ -77,12 +76,10 @@ export async function POST(
       }
     }
 
-    // Fall back to system API key
     if (!apiKey) {
       apiKey = process.env.GROQ_API_KEY || null;
     }
 
-    // If no API key available, return special message
     if (!apiKey) {
       console.warn('[API] No API key available for chat');
       return NextResponse.json({
@@ -96,14 +93,11 @@ export async function POST(
       });
     }
 
-    // Select model (alternate between requests)
     const model = GROQ_MODELS[modelToggle ? 1 : 0];
     modelToggle = !modelToggle;
 
-    // Build the prompt
     const messages = buildChatPrompt(body);
 
-    // Call Groq API
     const groqResponse = await fetch(GROQ_API_URL, {
       method: 'POST',
       headers: {
@@ -123,7 +117,6 @@ export async function POST(
       const errorText = await groqResponse.text();
       console.error('[API] Groq API error:', groqResponse.status, errorText);
       
-      // Return fallback on API error
       return NextResponse.json({
         success: true,
         data: {
@@ -162,9 +155,6 @@ export async function POST(
   }
 }
 
-/**
- * Fallback messages when API is unavailable
- */
 function getFallbackMessage(moveCount: number): string {
   const fallbackMessages = [
     "The game is developing nicely! Keep those pieces active.",
@@ -181,10 +171,6 @@ function getFallbackMessage(moveCount: number): string {
   return fallbackMessages[index];
 }
 
-/**
- * GET /api/chat
- * Returns information about the chat endpoint.
- */
 export async function GET(): Promise<NextResponse> {
   return NextResponse.json({
     endpoint: '/api/chat',
