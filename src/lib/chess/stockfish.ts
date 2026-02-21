@@ -99,7 +99,7 @@ function handleMessage(event: MessageEvent): void {
       multiPvLines.set(pvRank, {
         rank: pvRank,
         moves: info.pv,
-        sanMoves: [], // Will be filled by the caller
+        sanMoves: [],
         score: info.score,
         mate: info.mate,
         depth: info.depth,
@@ -216,14 +216,12 @@ export function analyzePosition(
   multiPvLines.clear();
   isAnalyzingFlag = true;
   
-  // Set callbacks - wrap bestMove to clear flag
   messageCallback = onInfo || null;
   bestMoveCallback = (move: string, ponder?: string) => {
     isAnalyzingFlag = false;
     onBestMove?.(move, ponder);
   };
 
-  // Set position and start analysis
   worker.postMessage(`position fen ${fen}`);
   worker.postMessage(`go depth ${depth}`);
 }

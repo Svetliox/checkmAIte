@@ -56,7 +56,6 @@ function parseFenToPieces(fen: string): { white: string[]; black: string[] } {
 function determineGamePhase(fen: string, moveCount: number): 'opening' | 'middlegame' | 'endgame' {
   const [position] = fen.split(' ');
   
-  // Count major/minor pieces (excluding pawns and kings)
   const minorMajorPieces = (position.match(/[qrbnQRBN]/g) || []).length;
   const queens = (position.match(/[qQ]/g) || []).length;
   

@@ -1,5 +1,3 @@
-
-
 import { Chess } from 'chess.js';
 import type {
   GameAnalysisResult,
