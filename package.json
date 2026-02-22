@@ -8,7 +8,7 @@
     "build": "npm run db:generate && next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "node scripts/download-stockfish.js",
+    "postinstall": "node scripts/setup-env.js && node scripts/download-stockfish.js",
     "db:start": "docker-compose up -d db",
     "db:stop": "docker-compose down",
     "db:generate": "npx prisma generate",
