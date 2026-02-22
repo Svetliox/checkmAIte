@@ -383,6 +383,5 @@ We welcome contributions! Please follow these steps:
 **Project Maintainer:** Svetoslav Yavorov
 
 - GitHub: [@Svetliox](https://github.com/svetliox)
-- Email: hello@checkmaite.com
 
 ---
