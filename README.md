@@ -159,35 +159,20 @@
    GROQ_API_KEY="your-groq-api-key"  # Get free at https://console.groq.com
    ```
 
-4. **Start PostgreSQL database**
-   
-   **Option A: Docker Compose (recommended)**
-   ```bash
-   npm run db:start
-   ```
-
-   **Option B: Local PostgreSQL**
-   Ensure PostgreSQL is running and create a database:
-   ```sql
-   CREATE DATABASE checkmaite;
-   ```
-
-5. **Run database migrations**
-   ```bash
-   npm run db:migrate:dev
-   ```
-
-6. **Seed the database (optional)**
-   ```bash
-   npm run db:seed
-   ```
-
-7. **Start development server**
+4. **Start development server**
    ```bash
    npm run dev
    ```
+   
+   **Important:** Make sure Docker Desktop is running and port **5432** is available.
+   
+   This command will automatically:
+   - Start PostgreSQL container
+   - Run database migrations
+   - Seed the database
+   - Launch the Next.js development server
 
-8. **Open browser**
+5. **Open browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
 ---
