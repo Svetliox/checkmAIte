@@ -128,7 +128,7 @@
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/checkmAIte.git
+   git clone https://github.com/Svetliox/checkmAIte.git
    cd checkmAIte
    ```
 
