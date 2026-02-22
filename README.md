@@ -67,10 +67,11 @@
 ---
 
 **Screenshots:**
-- Homepage: Modern landing page with feature highlights
-- Play Mode: Interactive board with difficulty selection
-- Analysis Mode: Deep position analysis with engine evaluation
-- AI Chat: Conversational chess insights
+![Homepage Screenshot](docs/pics/HomePage-Not%20logged.png)
+![Play VS Bot Mode](docs/pics/PlayVsBotMode.png)
+![Analysis Mode](docs/pics/AnalysisMode.png)
+![Save your games](docs/pics/SavedGamePage.png)
+![Load Saved Game Mode](docs/pics/LoadGameChooseModePop.png)
 
 ---
 
