@@ -15,15 +15,7 @@
   <p>
     <em>🎓 Developed as part of the AI-Assisted Development course final exam <a href="https://softuni.bg/">SoftUni</a></em>
   </p>
-
-  <p>
-    <a href="#features">Features</a> •
-    <a href="#demo">Demo</a> •
-    <a href="#tech-stack">Tech Stack</a> •
-    <a href="#getting-started">Getting Started</a> •
-    <a href="#architecture">Architecture</a> •
-    <a href="#api">API</a>
-  </p>
+  
 </div>
 
 ---
