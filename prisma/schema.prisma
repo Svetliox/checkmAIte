@@ -7,6 +7,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ChessTheme {
+  ORIGINAL
+  MODERN
+}
 
 model User {
   id            String    @id @default(cuid())
@@ -17,6 +21,7 @@ model User {
   emailVerified DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  chessTheme    ChessTheme @default(ORIGINAL)
 
   accounts Account[]
   sessions Session[]

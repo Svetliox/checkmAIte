@@ -69,10 +69,10 @@ export default function AccountPage() {
                         />
                       </svg>
                     </div>
-                    <h3 className="text-lg font-semibold text-white">AI Settings</h3>
+                    <h3 className="text-lg font-semibold text-white">Settings</h3>
                   </div>
                   <p className="text-gray-400 text-sm mb-4">
-                    Configure your AI API keys to enable AI-powered chess commentary and analysis.
+                    Configure your AI API keys, analysis engine depth and chess theme preferences.
                   </p>
                 </div>
                 <Link href="/account/settings">

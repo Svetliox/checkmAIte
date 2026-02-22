@@ -101,13 +101,20 @@ function PlayLayout({ loadGameId }: PlayLayoutProps) {
 
         // Extract player color and difficulty from saved game
         const savedColor = game.playerColor as PlayerColor | undefined;
-        const savedDifficulty = game.difficulty as BotDifficulty | undefined;
+        const savedDifficultyRaw = game.difficulty;
+        
+        // Validate difficulty is a valid BotDifficulty
+        // (analysis mode games may have depth numbers like "10" instead)
+        const validDifficulties: BotDifficulty[] = ['easy', 'medium', 'hard'];
+        const savedDifficulty = validDifficulties.includes(savedDifficultyRaw as BotDifficulty)
+          ? (savedDifficultyRaw as BotDifficulty)
+          : 'medium';
 
         loadGame(
           game.fen,
           parsedMoveHistory,
           savedColor || 'white',
-          savedDifficulty || 'medium',
+          savedDifficulty,
           parsedTopMoves
         );
       } catch (err) {
@@ -219,7 +226,7 @@ function PlayLayout({ loadGameId }: PlayLayoutProps) {
             <div>
               <h1 className="text-2xl font-bold">Play vs Bot</h1>
               <p className="text-foreground/70 text-sm mt-1">
-                Playing as {playerColor} • {BOT_DIFFICULTY_CONFIG[difficulty].label} difficulty
+                Playing as {playerColor} • {BOT_DIFFICULTY_CONFIG[difficulty]?.label || 'Medium'} difficulty
               </p>
             </div>
             <div className="flex items-center gap-2">

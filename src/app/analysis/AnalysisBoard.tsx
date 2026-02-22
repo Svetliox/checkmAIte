@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Chess } from 'chess.js';
 import { ChessBoard } from '@/components/chess';
+import { useChessTheme } from '@/hooks';
 import type { BoardOrientation } from '@/types';
 import { useAnalysis } from './AnalysisContext';
 
@@ -18,6 +19,8 @@ export function AnalysisBoard() {
     resetGame,
     currentFen,
   } = useAnalysis();
+
+  const { colors } = useChessTheme();
   
   const chessRef = useRef(new Chess());
   const previousEvalRef = useRef(0);
@@ -91,6 +94,8 @@ export function AnalysisBoard() {
         showControls={true}
         onFlipBoard={flipBoard}
         onUndoMove={handleUndo}
+        lightSquareColor={colors.lightSquare}
+        darkSquareColor={colors.darkSquare}
         onNewGame={handleNewGame}
         canUndo={moveHistory.length > 0}
       />

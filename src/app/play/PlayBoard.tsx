@@ -2,6 +2,7 @@
 
 import { ChessBoard } from '@/components/chess';
 import { usePlay } from './PlayContext';
+import { useChessTheme } from '@/hooks';
 import { cn } from '@/lib/utils';
 import type { Square } from 'chess.js';
 
@@ -19,6 +20,8 @@ export function PlayBoard({ className }: PlayBoardProps) {
     makePlayerMove,
     resetGame,
   } = usePlay();
+
+  const { colors } = useChessTheme();
 
   const handleMove = (move: { from: Square; to: Square; san: string }) => {
     makePlayerMove(move.from, move.to);
@@ -69,6 +72,8 @@ export function PlayBoard({ className }: PlayBoardProps) {
         position={fen}
         orientation={playerColor}
         interactive={isInteractive}
+        lightSquareColor={colors.lightSquare}
+        darkSquareColor={colors.darkSquare}
         onMove={handleMove}
         showControls={false}
       />
